@@ -1,1 +1,532 @@
-The complete single-file game is included in this repository. Open it in any browser to play.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Full Ape Ski Escape</title>
+<style>
+  body { margin:0; background:#0a2540; color:#fff; font-family:system-ui,-apple-system,sans-serif; display:flex; flex-direction:column; align-items:center; padding:20px; }
+  canvas { border:4px solid #334466; border-radius:8px; background:#1a3a5c; box-shadow:0 10px 30px rgba(0,0,0,0.5); }
+  .info { margin-top:15px; font-size:14px; opacity:0.85; text-align:center; max-width:720px; line-height:1.4; }
+  .title { font-size:28px; margin-bottom:6px; color:#ffcc33; }
+</style>
+</head>
+<body>
+
+<h1 class="title">FULL APE SKI ESCAPE</h1>
+<p style="margin:0 0 12px 0; opacity:0.7;">Titus gets away for a bit...</p>
+
+<canvas id="game" width="800" height="600"></canvas>
+
+<div class="info">
+  <strong>Controls:</strong> Left / Right Arrow Keys &nbsp;•&nbsp; <strong>Touch</strong> left or right half of the screen<br>
+  Ski over yellow beers → automatic 5-second speed boost<br>
+  Plow through puke, rocks, trash • Trees &amp; skiers = yard sale wipeout<br>
+  Reach the bottom before the orangutan catches you
+</div>
+
+<script>
+// ============== FULL APE SKI ESCAPE v0.3 - Player Slowly Descends ==============
+
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+
+let gameState = 'intro';
+
+const imgTitus = new Image(); imgTitus.src = 'imagine_images/pLvdU.jpg?v=3';
+const imgHuman = new Image(); imgHuman.src = 'imagine_images/wsPPW.jpg?v=3';
+const imgOrangutan = new Image(); imgOrangutan.src = 'imagine_images/xywuh.jpg?v=3';
+
+let titusX = 400;
+let titusY = 140;
+let scrollSpeed = 2.8;
+let currentSpeedMod = 1.0;
+let boostTimeLeft = 0;
+
+let distance = 0;
+const LEVEL_DISTANCE = 5800;
+
+let obstacles = [];
+let beers = [];
+let particles = [];
+
+let chaseActive = false;
+let chaseStartTime = 18000;
+let orangutanX = 400;
+let orangutanY = -120;
+let orangutanSpeed = 2.8;
+let orangutanRage = 0;
+
+let keys = {};
+let lastTime = 0;
+let gameStartTime = 0;
+let lastSpawn = 0;
+let bgOffset = 0;
+
+let touchLeft = false;
+let touchRight = false;
+
+function resetGame() {
+  titusX = 400;
+  titusY = 140;
+  scrollSpeed = 2.8;
+  currentSpeedMod = 1.0;
+  boostTimeLeft = 0;
+  distance = 0;
+  obstacles = [];
+  beers = [];
+  particles = [];
+  chaseActive = false;
+  orangutanX = 400;
+  orangutanY = -120;
+  orangutanRage = 0;
+  gameStartTime = Date.now();
+  lastSpawn = 0;
+  bgOffset = 0;
+}
+
+function spawnObstacle() {
+  const types = ['tree', 'skier', 'puke', 'rock', 'trash'];
+  const type = types[Math.floor(Math.random() * types.length)];
+  
+  obstacles.push({
+    x: 70 + Math.random() * 660,
+    y: titusY + 180 + Math.random() * 120,
+    type: type,
+    width: (type === 'skier') ? 36 : 30,
+    height: 46,
+    speedMod: (type === 'skier') ? 1.4 : 1.0,
+    sway: (type === 'skier') ? (Math.random() * 0.7 + 0.5) : 0
+  });
+}
+
+function spawnBeer() {
+  beers.push({
+    x: 90 + Math.random() * 620,
+    y: titusY + 160 + Math.random() * 80,
+    size: 20
+  });
+}
+
+function createParticles(x, y, color, count) {
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: x + (Math.random()-0.5)*18,
+      y: y,
+      vx: (Math.random()-0.5)*3.2,
+      vy: (Math.random()-0.5)*2.2 - 0.4,
+      life: 320 + Math.random()*260,
+      color: color
+    });
+  }
+}
+
+function update(delta) {
+  if (gameState !== 'playing') return;
+
+  const now = Date.now();
+  const elapsed = now - gameStartTime;
+
+  let move = 0;
+  if (keys['ArrowLeft'] || keys['a'] || keys['A']) move -= 1;
+  if (keys['ArrowRight'] || keys['d'] || keys['D']) move += 1;
+
+  if (touchLeft) move -= 1;
+  if (touchRight) move += 1;
+
+  const handling = (currentSpeedMod > 1.3) ? 0.8 : 1.0;
+  titusX += move * 6.0 * handling;
+  titusX = Math.max(55, Math.min(745, titusX));
+
+  const targetY = 280 + (distance / LEVEL_DISTANCE) * 80;
+  titusY += (targetY - titusY) * 0.012;
+
+  if (boostTimeLeft > 0) {
+    boostTimeLeft -= delta;
+    currentSpeedMod = 1.65;
+  } else {
+    currentSpeedMod = 1.0;
+  }
+
+  const effectiveScroll = scrollSpeed * currentSpeedMod;
+  bgOffset = (bgOffset + effectiveScroll * 0.5) % 48;
+
+  for (let i = obstacles.length - 1; i >= 0; i--) {
+    const obs = obstacles[i];
+    obs.y -= effectiveScroll * obs.speedMod;
+
+    if (obs.sway && obs.sway > 0) {
+      obs.x += Math.sin((now + i * 280) / 380) * obs.sway * 0.9;
+    }
+
+    const hitY = titusY;
+    if (obs.y > hitY - 45 && obs.y < hitY + 55) {
+      if (Math.abs(obs.x - titusX) < (obs.width * 0.6 + 20)) {
+        const canPlow = ['puke', 'rock', 'trash'].includes(obs.type);
+        if (canPlow) {
+          createParticles(obs.x, obs.y, '#99dd66', 8);
+          obstacles.splice(i, 1);
+          continue;
+        } else {
+          gameState = 'lose';
+          createParticles(titusX, titusY, '#ffffff', 26);
+          return;
+        }
+      }
+    }
+    if (obs.y < -80) obstacles.splice(i, 1);
+  }
+
+  for (let i = beers.length - 1; i >= 0; i--) {
+    const beer = beers[i];
+    beer.y -= effectiveScroll * 1.05;
+
+    if (beer.y > titusY - 50 && beer.y < titusY + 45 &&
+        Math.abs(beer.x - titusX) < 40) {
+      boostTimeLeft = 5000;
+      createParticles(beer.x, beer.y, '#ffdd44', 13);
+      beers.splice(i, 1);
+      continue;
+    }
+    if (beer.y < -60) beers.splice(i, 1);
+  }
+
+  distance += effectiveScroll * (delta / 15);
+
+  if (now - lastSpawn > 360) {
+    lastSpawn = now;
+    if (Math.random() < 0.76) spawnObstacle();
+    if (Math.random() < 0.27) spawnBeer();
+  }
+
+  if (!chaseActive && elapsed > chaseStartTime) {
+    chaseActive = true;
+    orangutanX = (Math.random() < 0.5) ? -60 : 860;
+    orangutanY = titusY - 180;
+    orangutanRage = 0;
+  }
+
+  if (chaseActive) {
+    orangutanRage += 0.0011;
+    const dx = titusX - orangutanX;
+    orangutanX += dx * 0.058;
+
+    const targetY = titusY - 65;
+    const dy = targetY - orangutanY;
+
+    const currentOrangSpeed = orangutanSpeed + orangutanRage;
+    const boostSlow = (currentSpeedMod > 1.4) ? 0.48 : 1.0;
+
+    orangutanY += dy * 0.052 * boostSlow;
+
+    if (orangutanY > titusY + 15) {
+      orangutanY -= 5.5;
+    }
+
+    const distX = Math.abs(orangutanX - titusX);
+    const distY = Math.abs(orangutanY - titusY);
+    if (distX < 70 && distY < 70) {
+      gameState = 'lose';
+      return;
+    }
+  }
+
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life -= delta;
+    if (p.life <= 0) particles.splice(i, 1);
+  }
+
+  if (distance >= LEVEL_DISTANCE) {
+    gameState = 'win';
+  }
+}
+
+function draw() {
+  ctx.fillStyle = '#e6f0ff';
+  ctx.fillRect(0, 0, 800, 600);
+
+  ctx.strokeStyle = '#c5d8ee';
+  ctx.lineWidth = 2.5;
+  for (let i = -2; i < 16; i++) {
+    const y = ((i * 48) - bgOffset) % 620;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(800, y + 26);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = 'rgba(255,255,255,0.2)';
+  for (let i = 0; i < 8; i++) {
+    const y = ((i * 72) - bgOffset * 0.35) % 620;
+    ctx.fillRect(30 + (i % 4) * 200, y, 160, 2.5);
+  }
+
+  if (gameState === 'intro') {
+    ctx.fillStyle = 'rgba(10,30,60,0.72)';
+    ctx.fillRect(0, 0, 800, 600);
+
+    if (imgHuman.complete) ctx.drawImage(imgHuman, 280, 160, 240, 240);
+
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 34px system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText('You need to get away...', 400, 110);
+    ctx.font = '20px system-ui';
+    ctx.fillText('Click anywhere to transform into Titus', 400, 470);
+    ctx.fillText('and escape down the mountain', 400, 498);
+
+  } else {
+
+    for (const obs of obstacles) {
+      if (obs.type === 'tree') {
+        ctx.fillStyle = '#1e5c1e';
+        ctx.fillRect(obs.x - 13, obs.y, 26, 50);
+        ctx.fillStyle = '#123b12';
+        ctx.fillRect(obs.x - 7, obs.y + 12, 14, 32);
+      } else if (obs.type === 'skier') {
+        ctx.fillStyle = '#3a4a99';
+        ctx.fillRect(obs.x - 11, obs.y + 8, 22, 30);
+        ctx.fillStyle = '#222';
+        ctx.fillRect(obs.x - 16, obs.y + 32, 32, 5);
+      } else if (obs.type === 'puke') {
+        ctx.fillStyle = '#a3c95a';
+        ctx.beginPath();
+        ctx.ellipse(obs.x, obs.y + 16, 15, 9, 0, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (obs.type === 'rock') {
+        ctx.fillStyle = '#555';
+        ctx.beginPath();
+        ctx.ellipse(obs.x, obs.y + 18, 14, 10, 0, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (obs.type === 'trash') {
+        ctx.fillStyle = '#444';
+        ctx.fillRect(obs.x - 10, obs.y + 5, 20, 24);
+      }
+    }
+
+    for (const beer of beers) {
+      ctx.fillStyle = '#ffcc33';
+      ctx.beginPath();
+      ctx.arc(beer.x, beer.y + 8, beer.size/2, 0, Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = '#ffee99';
+      ctx.fillRect(beer.x - 3, beer.y + 3, 6, 9);
+    }
+
+    if (imgTitus.complete && imgTitus.naturalWidth > 0) {
+      ctx.save();
+      ctx.translate(titusX, titusY);
+      ctx.drawImage(imgTitus, -50, -66, 100, 100);
+      ctx.restore();
+    } else {
+      const tx = titusX;
+      const ty = titusY;
+
+      ctx.fillStyle = '#2f2f2f';
+      ctx.beginPath();
+      ctx.ellipse(tx, ty + 5, 26, 32, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#3a3a3a';
+      ctx.beginPath();
+      ctx.arc(tx, ty - 22, 22, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#2f2f2f';
+      ctx.beginPath();
+      ctx.arc(tx - 20, ty - 20, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(tx + 20, ty - 20, 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#2f2f2f';
+      ctx.fillRect(tx - 38, ty - 5, 16, 28);
+      ctx.fillRect(tx + 22, ty - 5, 16, 28);
+
+      ctx.fillStyle = '#222';
+      ctx.fillRect(tx - 14, ty + 25, 10, 22);
+      ctx.fillRect(tx + 4, ty + 25, 10, 22);
+
+      ctx.fillStyle = '#111';
+      ctx.fillRect(tx - 22, ty + 44, 44, 5);
+
+      ctx.fillStyle = '#111';
+      ctx.fillRect(tx - 14, ty - 28, 28, 10);
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(tx - 11, ty - 26, 8, 6);
+      ctx.fillRect(tx + 3, ty - 26, 8, 6);
+    }
+
+    if (chaseActive) {
+      const size = 125;
+
+      if (imgOrangutan.complete && imgOrangutan.naturalWidth > 0) {
+        ctx.save();
+        ctx.translate(orangutanX, orangutanY);
+        ctx.drawImage(imgOrangutan, -size/2, -size/2, size, size);
+        ctx.restore();
+      } else {
+        ctx.fillStyle = '#ff6611';
+        ctx.beginPath();
+        ctx.ellipse(orangutanX, orangutanY + 5, 40, 46, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ee5500';
+        ctx.beginPath();
+        ctx.arc(orangutanX, orangutanY - 26, 30, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#111';
+        ctx.fillRect(orangutanX - 18, orangutanY - 34, 9, 6);
+        ctx.fillRect(orangutanX + 9, orangutanY - 34, 9, 6);
+        ctx.fillRect(orangutanX - 12, orangutanY - 20, 24, 5);
+
+        ctx.fillStyle = '#ff6611';
+        ctx.fillRect(orangutanX - 55, orangutanY - 6, 24, 20);
+        ctx.fillRect(orangutanX + 31, orangutanY - 6, 24, 20);
+      }
+    }
+
+    for (const p of particles) {
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = Math.max(0.15, p.life / 480);
+      ctx.fillRect(p.x-2, p.y-2, 4, 4);
+    }
+    ctx.globalAlpha = 1;
+
+    const prog = Math.min(distance / LEVEL_DISTANCE, 1);
+    ctx.fillStyle = '#1f2f4a';
+    ctx.fillRect(50, 26, 700, 15);
+    ctx.fillStyle = '#ffcc33';
+    ctx.fillRect(50, 26, 700 * prog, 15);
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(50, 26, 700, 15);
+
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 13px system-ui';
+    ctx.textAlign = 'left';
+    ctx.fillText(`${Math.floor(distance)}m  /  ${LEVEL_DISTANCE}m`, 58, 38);
+
+    if (boostTimeLeft > 0) {
+      ctx.fillStyle = '#ffcc33';
+      ctx.fillRect(50, 49, (boostTimeLeft/5000)*170, 6);
+      ctx.strokeStyle = '#fff';
+      ctx.strokeRect(50, 49, 170, 6);
+      ctx.fillStyle = '#fff';
+      ctx.fillText('CHUGGED', 230, 55);
+    }
+
+    if (chaseActive) {
+      ctx.fillStyle = '#ff5555';
+      ctx.font = 'bold 15px system-ui';
+      ctx.fillText("SHE'S COMING...", 590, 54);
+    }
+
+    if (gameState === 'win') {
+      ctx.fillStyle = 'rgba(0,0,0,0.78)';
+      ctx.fillRect(0,0,800,600);
+      ctx.fillStyle = '#ffcc33';
+      ctx.font = 'bold 38px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText('YOU MADE IT TO THE BOTTOM!', 400, 205);
+      ctx.font = '21px system-ui';
+      ctx.fillStyle = '#fff';
+      ctx.fillText('Titus and the boys are chest-pounding', 400, 265);
+      ctx.fillText('and chugging at the chalet...', 400, 293);
+      ctx.font = '18px system-ui';
+      ctx.fillText('Click anywhere to escape again', 400, 365);
+    }
+
+    if (gameState === 'lose') {
+      ctx.fillStyle = 'rgba(0,0,0,0.78)';
+      ctx.fillRect(0,0,800,600);
+      ctx.fillStyle = '#ff6666';
+      ctx.font = 'bold 36px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText('YARD SALE...', 400, 190);
+      ctx.font = '19px system-ui';
+      ctx.fillStyle = '#fff';
+      ctx.fillText('She grabbed you and dragged you off the mountain.', 400, 250);
+      ctx.fillText('Time to go watch the kids.', 400, 278);
+      ctx.font = '18px system-ui';
+      ctx.fillText('Click anywhere to try escaping again', 400, 355);
+    }
+  }
+}
+
+function gameLoop(ts = 0) {
+  const delta = ts - lastTime || 16;
+  lastTime = ts;
+  update(delta);
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+window.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if ((gameState === 'win' || gameState === 'lose') && (e.key === ' ' || e.key === 'Enter')) {
+    gameState = 'intro';
+    resetGame();
+  }
+});
+window.addEventListener('keyup', e => { keys[e.key] = false; });
+
+canvas.addEventListener('click', () => {
+  if (gameState === 'intro') { gameState = 'playing'; resetGame(); }
+  else if (gameState === 'win' || gameState === 'lose') { gameState = 'intro'; resetGame(); }
+});
+
+canvas.addEventListener('touchstart', (e) => {
+  if (gameState === 'intro') {
+    e.preventDefault();
+    gameState = 'playing';
+    resetGame();
+  }
+}, { passive: false });
+
+function updateTouchFromEvent(e) {
+  if (!e.touches || e.touches.length === 0) return;
+  e.preventDefault();
+
+  const rect = canvas.getBoundingClientRect();
+  const touchX = e.touches[0].clientX - rect.left;
+
+  touchLeft = touchX < (canvas.width / 2);
+  touchRight = touchX >= (canvas.width / 2);
+}
+
+canvas.addEventListener('touchstart', updateTouchFromEvent, { passive: false });
+canvas.addEventListener('touchmove', updateTouchFromEvent, { passive: false });
+
+function clearTouch(e) {
+  if (gameState === 'intro') {
+    gameState = 'playing';
+    resetGame();
+  } else if (gameState === 'win' || gameState === 'lose') {
+    gameState = 'intro';
+    resetGame();
+  }
+
+  touchLeft = false;
+  touchRight = false;
+}
+
+canvas.addEventListener('touchend', clearTouch);
+canvas.addEventListener('touchcancel', clearTouch);
+
+function startGame() {
+  setTimeout(() => {
+    gameState = 'intro';
+    resetGame();
+    gameLoop();
+  }, 200);
+}
+startGame();
+</script>
+
+</body>
+</html>
