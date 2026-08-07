@@ -16,12 +16,12 @@
 <p class="sub">Titus gets away for a bit... • Procedural mountain</p>
 <canvas id="game" width="800" height="600"></canvas>
 <div class="info">
-  <strong>Controls:</strong> ← → / A D • <strong>Space W ↑</strong> JUMP • Touch left/right to steer<br>
-  Beers = chug + boost • Jump for air • Moguls slow you • Trees/skiers = yard sale<br>
+  <strong>Controls:</strong> ← → / A D • <strong>Space W ↑</strong> JUMP (mash for more air) • Touch left/right to steer<br>
+  Beers = chug + boost • Ramps launch you • Moguls slow you • Trees/skiers = yard sale<br>
   Every run generates a unique mountain profile & zones
 </div>
 <script>
-// FULL APE SKI ESCAPE v0.10 — Rounded muscles, fur edges, white teeth smiles
+// FULL APE SKI ESCAPE v0.11 — Fixed ears, canine teeth, ramps, freer jumps, lipstick Mama
 const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
 ctx.imageSmoothingEnabled=false;
 
@@ -37,6 +37,7 @@ function sfxMogul(){playTone(65,.09,'sawtooth',.04)}
 function sfxClose(){playTone(210,.07,'square',.04)}
 function sfxWin(){playTone(250,.11);setTimeout(()=>playTone(320,.11),70);setTimeout(()=>playTone(380,.16),150)}
 function sfxPound(){playTone(75,.08,'triangle',.07)}
+function sfxRamp(){playTone(220,.12,'square',.05,80)}
 
 let terrainSeed=1;
 function hash(n){n=(n^terrainSeed)*0x45d9f3b;n=(n^(n>>>16))*0x45d9f3b;n=n^(n>>>16);return(n&0x7fffffff)/0x7fffffff}
@@ -46,35 +47,50 @@ function heightAt(dist){return (fbm1D(dist*0.0065)-0.5)*55+(fbm1D(dist*0.018+20)
 function slopeAt(dist){const eps=8;return (heightAt(dist+eps)-heightAt(dist-eps))/(eps*2)}
 function getZone(dist){const n=fbm1D(dist*0.0022+100);const progress=dist/LEVEL_DISTANCE;if(progress>0.88)return 'runout';if(n<0.28)return 'open';if(n<0.48)return 'trees';if(n<0.68)return 'moguls';if(n<0.85)return 'rocky';return 'steep'}
 
-let titusX=400,titusY=140,scrollSpeed=2.9,currentSpeedMod=1,boostTimeLeft=0,jumpTimeLeft=0,jumpVy=0,isAirborne=false,mogulSlowLeft=0,shake=0,distance=0;
+let titusX=400,titusY=140,scrollSpeed=2.9,currentSpeedMod=1,boostTimeLeft=0,jumpVy=0,isAirborne=false,mogulSlowLeft=0,shake=0,distance=0;
+let airJumpsLeft=1;
 const LEVEL_DISTANCE=6500;
 let obstacles=[],beers=[],particles=[];
 let chaseActive=false,chaseStartTime=16500,orangutanX=400,orangutanY=-140,orangutanRage=0,lastCloseSfx=0;
 let keys={},lastTime=0,gameStartTime=0,lastSpawn=0,bgOffset=0,touchLeft=false,touchRight=false;
 let beersChugged=0,closeCalls=0,jumpsMade=0,runStartTime=0,celebTime=0,bros=[];
 let lean=0,leanTarget=0,chugTimer=0,bodyBob=0;
+let jumpCooldown=0;
 
 function newSeed(){terrainSeed=(Math.random()*0x7fffffff)|1}
-function resetGame(){newSeed();titusX=400;titusY=140;scrollSpeed=2.9;currentSpeedMod=1;boostTimeLeft=0;jumpTimeLeft=0;jumpVy=0;isAirborne=false;mogulSlowLeft=0;shake=0;distance=0;obstacles=[];beers=[];particles=[];chaseActive=false;orangutanX=400;orangutanY=-140;orangutanRage=0;lastCloseSfx=0;gameStartTime=Date.now();runStartTime=Date.now();lastSpawn=0;bgOffset=0;beersChugged=0;closeCalls=0;jumpsMade=0;celebTime=0;bros=[];lean=0;leanTarget=0;chugTimer=0;bodyBob=0}
+function resetGame(){newSeed();titusX=400;titusY=140;scrollSpeed=2.9;currentSpeedMod=1;boostTimeLeft=0;jumpVy=0;isAirborne=false;airJumpsLeft=1;mogulSlowLeft=0;shake=0;distance=0;obstacles=[];beers=[];particles=[];chaseActive=false;orangutanX=400;orangutanY=-140;orangutanRage=0;lastCloseSfx=0;gameStartTime=Date.now();runStartTime=Date.now();lastSpawn=0;bgOffset=0;beersChugged=0;closeCalls=0;jumpsMade=0;celebTime=0;bros=[];lean=0;leanTarget=0;chugTimer=0;bodyBob=0;jumpCooldown=0}
 
 function spawnObstacle(){
   const zone=getZone(distance);
   let types,weights;
-  if(zone==='open'){types=['rock','trash','puke','mogul','tree'];weights=[0.15,0.15,0.2,0.25,0.25]}
-  else if(zone==='trees'){types=['tree','skier','puke','rock','mogul'];weights=[0.42,0.18,0.12,0.13,0.15]}
-  else if(zone==='moguls'){types=['mogul','rock','puke','tree','trash'];weights=[0.4,0.18,0.15,0.15,0.12]}
-  else if(zone==='rocky'){types=['rock','tree','trash','skier','mogul'];weights=[0.35,0.2,0.15,0.15,0.15]}
-  else if(zone==='steep'){types=['tree','rock','skier','puke','mogul'];weights=[0.28,0.25,0.2,0.12,0.15]}
-  else {types=['rock','puke','trash','mogul','tree'];weights=[0.2,0.25,0.2,0.2,0.15]}
+  if(zone==='open'){types=['ramp','rock','trash','puke','mogul','tree'];weights=[0.22,0.12,0.12,0.15,0.18,0.21]}
+  else if(zone==='trees'){types=['tree','skier','puke','rock','mogul','ramp'];weights=[0.38,0.16,0.12,0.12,0.12,0.1]}
+  else if(zone==='moguls'){types=['mogul','ramp','rock','puke','tree','trash'];weights=[0.32,0.18,0.15,0.12,0.13,0.1]}
+  else if(zone==='rocky'){types=['rock','tree','trash','skier','mogul','ramp'];weights=[0.3,0.18,0.14,0.14,0.12,0.12]}
+  else if(zone==='steep'){types=['ramp','tree','rock','skier','puke','mogul'];weights=[0.25,0.22,0.2,0.15,0.1,0.08]}
+  else {types=['rock','puke','trash','mogul','tree','ramp'];weights=[0.18,0.2,0.18,0.18,0.14,0.12]}
   let r=Math.random(),type='tree',acc=0;
   for(let i=0;i<types.length;i++){acc+=weights[i];if(r<acc){type=types[i];break}}
   const localH=heightAt(distance+180);
   const baseY=titusY+190+Math.random()*110;
-  obstacles.push({x:55+Math.random()*690,y:baseY-localH*0.35,type,width:type==='skier'?34:(type==='mogul'?48:28),height:type==='mogul'?18:44,speedMod:type==='skier'?1.35:1,sway:type==='skier'?(Math.random()*0.55+0.35):0,groundBias:localH});
+  const isRamp=type==='ramp';
+  obstacles.push({x:55+Math.random()*690,y:baseY-localH*0.35,type,width:isRamp?56:(type==='skier'?34:(type==='mogul'?48:28)),height:isRamp?28:(type==='mogul'?18:44),speedMod:type==='skier'?1.35:1,sway:type==='skier'?(Math.random()*0.55+0.35):0,groundBias:localH});
 }
 function spawnBeer(){const localH=heightAt(distance+160);beers.push({x:80+Math.random()*640,y:titusY+165+Math.random()*85-localH*0.3})}
 function createParticles(x,y,color,count,speed=3.2){for(let i=0;i<count;i++)particles.push({x:x+(Math.random()-0.5)*20,y:y+(Math.random()-0.5)*10,vx:(Math.random()-0.5)*speed,vy:(Math.random()-0.5)*speed*0.7-0.6,life:280+Math.random()*320,color,size:2+Math.random()*3})}
-function doJump(){if(gameState!=='playing'||isAirborne||jumpTimeLeft>0)return;isAirborne=true;jumpVy=-7.2;jumpTimeLeft=720;currentSpeedMod=Math.max(currentSpeedMod,1.55);jumpsMade++;sfxJump();createParticles(titusX,titusY+30,'#e8f4ff',10,2.5)}
+
+function doJump(){
+  if(gameState!=='playing'||jumpCooldown>0)return;
+  if(!isAirborne){
+    isAirborne=true;jumpVy=-7.4;airJumpsLeft=1;jumpsMade++;sfxJump();
+    createParticles(titusX,titusY+30,'#e8f4ff',10,2.5);
+    jumpCooldown=120;
+  } else if(airJumpsLeft>0){
+    jumpVy=-6.2;airJumpsLeft--;jumpsMade++;sfxJump();
+    createParticles(titusX,titusY+20,'#c0e0ff',8,2.2);
+    jumpCooldown=140;
+  }
+}
 function triggerShake(a=10){shake=Math.max(shake,a)}
 function px(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
 function ell(x,y,rx,ry,c){ctx.fillStyle=c;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill()}
@@ -114,41 +130,41 @@ function drawTitus(tx,ty,leanAmt,bob,chugging,speed){
   ell(lx*0.5-9,3,5,6,'#383838');
   ell(lx*0.5+9,3,5,6,'#383838');
   px(lx*0.5-2,14,4,12,'#181818');
-  ell(lx*0.5-24, -2, 8,6,'#0c0c0c');
-  ell(lx*0.5+24, -2, 8,6,'#0c0c0c');
-  ell(lx*0.5-22, -4, 5,4,'#1a1a1a');
-  ell(lx*0.5+22, -4, 5,4,'#1a1a1a');
+  ell(lx*0.5-24,-2,8,6,'#0c0c0c');
+  ell(lx*0.5+24,-2,8,6,'#0c0c0c');
 
   const hx=lx*0.7;
-  ell(hx,-28,22,22,'#0e0e0e');
-  ell(hx,-28,18,18,'#1c1c1c');
-  ell(hx-20,-38,7,6,'#0a0a0a');
-  ell(hx+20,-38,7,6,'#0a0a0a');
-  ell(hx-16,-42,6,5,'#121212');
-  ell(hx+16,-42,6,5,'#121212');
-  ell(hx,-44,10,5,'#0a0a0a');
-  ell(hx,-34,12,8,'#2a2a2a');
-  ell(hx-24,-30,7,9,'#0c0c0c');
-  ell(hx-23,-30,4,6,'#1a1a1a');
-  ell(hx+24,-30,7,9,'#0c0c0c');
-  ell(hx+23,-30,4,6,'#1a1a1a');
+  ell(hx,-28,20,20,'#0e0e0e');
+  ell(hx,-28,16,16,'#1c1c1c');
+  ell(hx,-42,9,5,'#0a0a0a');
+  ell(hx-8,-40,6,4,'#121212');
+  ell(hx+8,-40,6,4,'#121212');
+  // Proper small gorilla ears set back on sides
+  ell(hx-18,-26,5,7,'#0c0c0c');
+  ell(hx-17,-26,3,5,'#1a1a1a');
+  ell(hx+18,-26,5,7,'#0c0c0c');
+  ell(hx+17,-26,3,5,'#1a1a1a');
+  ell(hx,-34,11,7,'#2a2a2a');
 
-  ell(hx,-16,14,11,'#1a1a1a');
-  ell(hx,-15,11,8,'#282828');
-  px(hx-9,-14,18,6,'#f5f0e0');
-  px(hx-8,-13,4,4,'#fff');
-  px(hx-3,-13,4,4,'#fff');
-  px(hx+2,-13,4,4,'#fff');
-  px(hx+7,-13,3,4,'#fff');
-  px(hx-9,-15,18,2,'#3a2a2a');
-  px(hx-7,-8,14,2,'#0a0a0a');
+  ell(hx,-15,13,10,'#1a1a1a');
+  ell(hx,-14,10,7,'#282828');
+  // Canine teeth
+  px(hx-8,-13,16,5,'#f0ebe0');
+  px(hx-4,-12,3,4,'#fff');
+  px(hx+1,-12,3,4,'#fff');
+  px(hx-8,-14,3,6,'#fff');
+  px(hx-7,-15,2,2,'#fff');
+  px(hx+5,-14,3,6,'#fff');
+  px(hx+6,-15,2,2,'#fff');
+  px(hx-8,-14,16,2,'#3a2a2a');
+  px(hx-6,-7,12,2,'#0a0a0a');
 
-  px(hx-16,-32,32,12,'#050505');
-  px(hx-14,-30,12,8,'#0e2040');
-  px(hx+2,-30,12,8,'#0e2040');
-  px(hx-12+leanAmt,-29,4,3,'#3a7ec8');
-  px(hx+4+leanAmt,-29,4,3,'#3a7ec8');
-  px(hx-1,-28,3,3,'#0a0a0a');
+  px(hx-15,-31,30,11,'#050505');
+  px(hx-13,-29,11,7,'#0e2040');
+  px(hx+2,-29,11,7,'#0e2040');
+  px(hx-11+leanAmt,-28,4,3,'#3a7ec8');
+  px(hx+4+leanAmt,-28,4,3,'#3a7ec8');
+  px(hx-1,-27,3,3,'#0a0a0a');
 
   if(chugging){
     ell(-26,-18,9,16,'#121212');
@@ -162,7 +178,6 @@ function drawTitus(tx,ty,leanAmt,bob,chugging,speed){
     ell(-4,-62,4,4,'#fff8cc');
     ell(3,-64,3,3,'#fff0aa');
     ell(0,-66,3,3,'#ffe680');
-    ell(6,-61,2,2,'#fff8cc');
   } else {
     const armSwing=leanAmt*4;
     ell(-30-armSwing,6,10,18,'#121212');
@@ -175,9 +190,9 @@ function drawTitus(tx,ty,leanAmt,bob,chugging,speed){
     ell(28+armSwing,-2,6,5,'#0c0c0c');
     ctx.strokeStyle='#1a1a1a';ctx.lineWidth=3;
     ctx.beginPath();ctx.moveTo(-28-armSwing,18);ctx.lineTo(-42-armSwing*0.5,60);ctx.stroke();
-    px(-46-armSwing*0.5,58,10,4,'#222');px(-44-armSwing*0.5,57,6,2,'#444');
+    px(-46-armSwing*0.5,58,10,4,'#222');
     ctx.beginPath();ctx.moveTo(28+armSwing,18);ctx.lineTo(42+armSwing*0.5,60);ctx.stroke();
-    px(36+armSwing*0.5,58,10,4,'#222');px(38+armSwing*0.5,57,6,2,'#444');
+    px(36+armSwing*0.5,58,10,4,'#222');
   }
 
   if(speed>1.4){
@@ -209,15 +224,12 @@ function drawMama(ox,oy,scale,rage){
   ell(0,22*s,22*s,16*s,'#d87830');
   ell(-22*s,28*s,8*s,5*s,'#8a3810');
   ell(18*s,30*s,9*s,5*s,'#8a3810');
-  ell(-8*s,34*s,10*s,4*s,'#a04818');
 
   ell(0,-28*s,30*s,28*s,'#a04010');
   ell(0,-26*s,24*s,22*s,'#c05818');
   ell(0,-32*s,16*s,12*s,'#d87830');
   ell(-26*s,-36*s,8*s,7*s,'#8a3810');
   ell(26*s,-36*s,8*s,7*s,'#8a3810');
-  ell(-18*s,-44*s,7*s,6*s,'#a04818');
-  ell(18*s,-44*s,7*s,6*s,'#a04818');
   ell(0,-48*s,10*s,6*s,'#8a3810');
 
   ell(-12*s,-30*s,8*s,8*s,'#1a1008');
@@ -229,13 +241,16 @@ function drawMama(ox,oy,scale,rage){
   px(-18*s,-36*s,14*s,4*s,'#6a2808');
   px(4*s,-36*s,14*s,4*s,'#6a2808');
 
+  // Mouth + lipstick
   ell(0,-12*s,18*s,12*s,'#6a2008');
-  ell(0,-10*s,14*s,8*s,'#8a3010');
-  px(-10*s,-12*s,20*s,6*s,'#f5f0e0');
+  ell(0,-11*s,16*s,10*s,'#c02040');
+  ell(0,-10*s,13*s,7*s,'#e03858');
+  px(-10*s,-12*s,20*s,5*s,'#f5f0e0');
   px(-9*s,-11*s,5*s,4*s,'#fff');
   px(-3*s,-11*s,5*s,4*s,'#fff');
   px(3*s,-11*s,5*s,4*s,'#fff');
-  px(-8*s,-4*s,16*s,3*s,'#4a1808');
+  px(-10*s,-5*s,20*s,4*s,'#c02040');
+  px(-8*s,-4*s,16*s,2*s,'#e03858');
 
   ell(0,-18*s,7*s,5*s,'#c05818');
   px(-3*s,-18*s,2*s,2*s,'#3a1008');
@@ -269,10 +284,11 @@ function drawBro(bx,by,phase){
   px(bx-12,by-26+bounce,24,8,'#0a0a0a');
   px(bx-10,by-24+bounce,8,5,'#1a3a60');
   px(bx+2,by-24+bounce,8,5,'#1a3a60');
-  px(bx-8,by-14+bounce,16,5,'#f5f0e0');
-  px(bx-7,by-13+bounce,4,3,'#fff');
-  px(bx-2,by-13+bounce,4,3,'#fff');
-  px(bx+3,by-13+bounce,4,3,'#fff');
+  px(bx-8,by-14+bounce,16,5,'#f0ebe0');
+  px(bx-8,by-15+bounce,3,6,'#fff');
+  px(bx+5,by-15+bounce,3,6,'#fff');
+  px(bx-3,by-13+bounce,3,4,'#fff');
+  px(bx+1,by-13+bounce,3,4,'#fff');
   const armY=Math.sin(phase*2.3)*12;
   ell(bx-24,by+6+bounce+armY,8,12,'#1a1008');
   ell(bx+24,by+6+bounce-armY,8,12,'#1a1008');
@@ -285,6 +301,30 @@ function drawTrash(x,y){px(x-12,y+0,24,30,'#1e1e1e');px(x-10,y+2,20,24,'#2e2e2e'
 function drawPuke(x,y){ctx.fillStyle='#6a8a2a';ctx.beginPath();ctx.ellipse(x,y+10,18,11,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#8aaa3a';ctx.beginPath();ctx.ellipse(x-5,y+6,11,7,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#aaca4a';ctx.beginPath();ctx.ellipse(x+3,y+4,6,4,0,0,Math.PI*2);ctx.fill()}
 function drawMogul(x,y){ctx.fillStyle='#98b8d8';ctx.beginPath();ctx.ellipse(x,y+6,32,15,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#b0d0e8';ctx.beginPath();ctx.ellipse(x-10,y+2,18,10,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#d0e4f4';ctx.beginPath();ctx.ellipse(x-4,y-1,9,5,0,0,Math.PI*2);ctx.fill()}
 function drawBeer(x,y){px(x-8,y,16,22,'#b88000');px(x-6,y+2,12,16,'#d8a000');px(x-7,y-4,14,5,'#c8c8c8');px(x-5,y-5,10,3,'#e8e8e8');px(x-4,y+4,8,6,'#f0c020');px(x-3,y+5,4,3,'#fff0a0');px(x-6,y+12,12,3,'#fff')}
+function drawRamp(x,y){
+  ctx.fillStyle='#8aa8c0';
+  ctx.beginPath();
+  ctx.moveTo(x-28,y+18);
+  ctx.lineTo(x+8,y-8);
+  ctx.lineTo(x+28,y+4);
+  ctx.lineTo(x+28,y+18);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle='#b0cce0';
+  ctx.beginPath();
+  ctx.moveTo(x-24,y+14);
+  ctx.lineTo(x+6,y-4);
+  ctx.lineTo(x+22,y+6);
+  ctx.lineTo(x+22,y+14);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle='#d8e8f4';
+  ctx.lineWidth=2;
+  ctx.beginPath();
+  ctx.moveTo(x-26,y+16);
+  ctx.lineTo(x+6,y-6);
+  ctx.stroke();
+}
 
 function drawTerrainSurface(camDist){
   ctx.beginPath();const samples=40;const startDist=camDist-80;const endDist=camDist+520;
@@ -310,33 +350,55 @@ function update(delta){
   if(gameState==='celebrating'){celebTime+=delta;if(Math.floor(celebTime/280)!==Math.floor((celebTime-delta)/280))sfxPound();return}
   if(gameState!=='playing')return;
   const now=Date.now(),elapsed=now-gameStartTime;
+  if(jumpCooldown>0)jumpCooldown-=delta;
+
   let move=0;
   if(keys['ArrowLeft']||keys['a']||keys['A'])move-=1;
   if(keys['ArrowRight']||keys['d']||keys['D'])move+=1;
   if(touchLeft)move-=1;if(touchRight)move+=1;
   if(keys[' ']||keys['ArrowUp']||keys['w']||keys['W'])doJump();
+
   leanTarget=move;lean+=(leanTarget-lean)*0.18;
   bodyBob=Math.sin(now/90)*(1.2+(currentSpeedMod-1)*2.5);
   if(chugTimer>0)chugTimer-=delta;
+
   const handling=(currentSpeedMod>1.35||isAirborne)?0.82:1;
   titusX+=move*6.5*handling;titusX=Math.max(48,Math.min(752,titusX));
+
   const terrainInfluence=heightAt(distance)*0.12;
   const baseTargetY=268+(distance/LEVEL_DISTANCE)*88-terrainInfluence;
-  if(isAirborne){jumpVy+=0.38;titusY+=jumpVy;jumpTimeLeft-=delta;if(titusY>=baseTargetY||jumpTimeLeft<=0){titusY=baseTargetY;isAirborne=false;jumpVy=0;sfxLand();triggerShake(5);createParticles(titusX,titusY+40,'#d0e8ff',8,2)}}
-  else{titusY+=(baseTargetY-titusY)*0.02}
-  if(boostTimeLeft>0){boostTimeLeft-=delta;currentSpeedMod=1.72}else if(!isAirborne)currentSpeedMod=1;
+  if(isAirborne){
+    jumpVy+=0.36;titusY+=jumpVy;
+    if(titusY>=baseTargetY){
+      titusY=baseTargetY;isAirborne=false;jumpVy=0;airJumpsLeft=1;
+      sfxLand();triggerShake(5);createParticles(titusX,titusY+40,'#d0e8ff',8,2);
+    }
+  }else{
+    titusY+=(baseTargetY-titusY)*0.02;
+  }
+
+  if(boostTimeLeft>0){boostTimeLeft-=delta;currentSpeedMod=1.72}
+  else if(!isAirborne)currentSpeedMod=1;
   if(mogulSlowLeft>0){mogulSlowLeft-=delta;currentSpeedMod*=0.55}
   if(isAirborne)currentSpeedMod=Math.max(currentSpeedMod,1.48);
+
   const slope=slopeAt(distance);
   const slopeBoost=1+Math.max(-0.08,Math.min(0.12,-slope*0.4));
   const effectiveScroll=scrollSpeed*currentSpeedMod*slopeBoost;
   bgOffset=(bgOffset+effectiveScroll*0.55)%48;
+
   for(let i=obstacles.length-1;i>=0;i--){
-    const obs=obstacles[i];obs.y-=effectiveScroll*obs.speedMod;
+    const obs=obstacles[i];
+    obs.y-=effectiveScroll*obs.speedMod;
     if(obs.sway)obs.x+=Math.sin((now+i*260)/360)*obs.sway*0.85;
     const airSafe=isAirborne&&(baseTargetY-titusY)>28;
     if(!airSafe&&obs.y>titusY-48&&obs.y<titusY+52){
       if(Math.abs(obs.x-titusX)<(obs.width*0.55+18)){
+        if(obs.type==='ramp'){
+          isAirborne=true;jumpVy=-9.5;airJumpsLeft=1;currentSpeedMod=Math.max(currentSpeedMod,1.65);
+          sfxRamp();triggerShake(6);createParticles(obs.x,obs.y,'#d0e8ff',14,3.5);
+          jumpsMade++;obstacles.splice(i,1);continue;
+        }
         if(obs.type==='mogul'){mogulSlowLeft=900;sfxMogul();triggerShake(4);createParticles(obs.x,obs.y,'#c0d8f0',7,2);obstacles.splice(i,1);continue}
         if(['puke','rock','trash'].includes(obs.type)){createParticles(obs.x,obs.y,obs.type==='puke'?'#8aba3a':'#777',9);obstacles.splice(i,1);continue}
         else{gameState='lose';sfxWipe();triggerShake(18);createParticles(titusX,titusY,'#fff',32,5);createParticles(titusX,titusY,'#ffaa66',12,4);return}
@@ -344,8 +406,10 @@ function update(delta){
     }
     if(obs.y<-90)obstacles.splice(i,1);
   }
+
   for(let i=beers.length-1;i>=0;i--){
-    const beer=beers[i];beer.y-=effectiveScroll*1.05;
+    const beer=beers[i];
+    beer.y-=effectiveScroll*1.05;
     if(!isAirborne||(baseTargetY-titusY)<35){
       if(beer.y>titusY-48&&beer.y<titusY+42&&Math.abs(beer.x-titusX)<38){
         boostTimeLeft=5000;beersChugged++;chugTimer=780;sfxChug();
@@ -355,18 +419,32 @@ function update(delta){
     }
     if(beer.y<-60)beers.splice(i,1);
   }
+
   distance+=effectiveScroll*(delta/14.5);
-  if(now-lastSpawn>320){lastSpawn=now;const zone=getZone(distance);const spawnChance=zone==='open'?0.62:zone==='trees'?0.85:0.78;if(Math.random()<spawnChance)spawnObstacle();if(Math.random()<0.28)spawnBeer()}
+  if(now-lastSpawn>320){
+    lastSpawn=now;
+    const zone=getZone(distance);
+    const spawnChance=zone==='open'?0.62:zone==='trees'?0.85:0.78;
+    if(Math.random()<spawnChance)spawnObstacle();
+    if(Math.random()<0.28)spawnBeer();
+  }
+
   if(!chaseActive&&elapsed>chaseStartTime){chaseActive=true;orangutanX=(Math.random()<0.5)?-70:870;orangutanY=titusY-200;orangutanRage=0}
   if(chaseActive){
     orangutanRage+=0.00125+(distance/LEVEL_DISTANCE)*0.0004;
-    const predict=move*18;const dx=(titusX+predict)-orangutanX;orangutanX+=dx*(0.052+orangutanRage*0.01);
-    const targetY=titusY-70;const dy=targetY-orangutanY;const boostSlow=(currentSpeedMod>1.4)?0.42:1;
-    orangutanY+=dy*0.048*boostSlow;if(orangutanY>titusY+20)orangutanY-=6;
+    const predict=move*18;
+    const dx=(titusX+predict)-orangutanX;
+    orangutanX+=dx*(0.052+orangutanRage*0.01);
+    const targetY=titusY-70;
+    const dy=targetY-orangutanY;
+    const boostSlow=(currentSpeedMod>1.4)?0.42:1;
+    orangutanY+=dy*0.048*boostSlow;
+    if(orangutanY>titusY+20)orangutanY-=6;
     const dist=Math.hypot(orangutanX-titusX,orangutanY-titusY);
     if(dist<115&&now-lastCloseSfx>900){closeCalls++;lastCloseSfx=now;sfxClose();triggerShake(3)}
     if(dist<62){gameState='lose';sfxWipe();triggerShake(20);createParticles(titusX,titusY,'#ff6622',28,5);return}
   }
+
   for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.x+=p.vx;p.y+=p.vy;p.life-=delta;p.vy+=0.04;if(p.life<=0)particles.splice(i,1)}
   if(shake>0)shake*=0.88;if(shake<0.4)shake=0;
   if(distance>=LEVEL_DISTANCE){gameState='celebrating';celebTime=0;sfxWin();bros=[{x:280,y:380,phase:0},{x:400,y:370,phase:1.2},{x:520,y:380,phase:2.4}];createParticles(400,300,'#ffcc33',40,6)}
@@ -390,7 +468,7 @@ function draw(){
     ctx.font='18px system-ui';ctx.fillText('Click or tap to transform into Titus',400,450);
     ctx.fillText('Every run generates a new mountain',400,478);
     ctx.font='14px system-ui';ctx.fillStyle='#ffcc33';
-    ctx.fillText('Space / W / ↑ JUMP  •  Watch the terrain change',400,530);
+    ctx.fillText('Space / W / ↑ JUMP (mash for air)  •  Hit ramps for big launches',400,530);
   }else if(gameState==='celebrating'){
     ctx.fillStyle='rgba(0,0,0,0.76)';ctx.fillRect(0,0,800,600);
     drawTitus(400,250,Math.sin(celebTime/150)*0.8,Math.sin(celebTime/80)*3,false,1);
@@ -416,6 +494,7 @@ function draw(){
       else if(obs.type==='rock')drawRock(obs.x,obs.y);
       else if(obs.type==='trash')drawTrash(obs.x,obs.y);
       else if(obs.type==='mogul')drawMogul(obs.x,obs.y);
+      else if(obs.type==='ramp')drawRamp(obs.x,obs.y);
     }
     for(const beer of beers)drawBeer(beer.x,beer.y);
     const chugging=chugTimer>0;
@@ -439,7 +518,7 @@ function draw(){
     ctx.fillText(zone.toUpperCase(),700,29);
     if(boostTimeLeft>0){px(40,40,(boostTimeLeft/5000)*160,9,'#d89800');ctx.strokeRect(40,40,160,9);ctx.fillStyle='#fff';ctx.fillText('CHUGGING',210,49)}
     if(mogulSlowLeft>0){ctx.fillStyle='#88b0d0';ctx.fillText('MOGUL!',310,49)}
-    if(isAirborne){ctx.fillStyle='#90c8ff';ctx.fillText('AIR',380,49)}
+    if(isAirborne){ctx.fillStyle='#90c8ff';ctx.fillText('AIR'+(airJumpsLeft>0?' +':''),380,49)}
     if(chaseActive){
       const dist=Math.hypot(orangutanX-titusX,orangutanY-titusY);
       ctx.font='bold 15px system-ui';
