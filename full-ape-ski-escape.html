@@ -1,40 +1,20 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><title>Full Ape Ski Escape</title></head>
-<body style="margin:0;background:#071018;color:#ccc;font-family:system-ui;padding:16px">
-<p id="s">Loading Full Ape Ski Escape v0.15...</p>
-<script>
-(async () => {
-  async function get(path) {
-    const urls = [
-      path,
-      'https://cdn.jsdelivr.net/gh/davey-fresh/full-ape-ski-escape@main/' + path,
-      'https://raw.githubusercontent.com/davey-fresh/full-ape-ski-escape/main/' + path
-    ];
-    for (const u of urls) {
-      try {
-        const r = await fetch(u + (u.startsWith('http') ? '?t=' + Date.now() : ''));
-        if (r.ok) {
-          const t = (await r.text()).trim();
-          if (t.length > 30) return t;
-        }
-      } catch (e) {}
-    }
-    return null;
-  }
-  let b64 = '';
-  for (const f of ['b0.b64','b1.b64','b2.b64','b3.b64','b4.b64','b5.b64','b6.b64','b7.b64']) {
-    const t = await get(f);
-    if (!t) {
-      document.getElementById('s').textContent = 'Missing ' + f + ' — fallback...';
-      setTimeout(() => location.href = 'https://cdn.jsdelivr.net/gh/davey-fresh/full-ape-ski-escape@b08f808b5c3a52fa36df6541198ec180b5a65d24/full-ape-ski-escape.html', 500);
-      return;
-    }
-    b64 += t;
-  }
-  document.open();
-  document.write(atob(b64));
-  document.close();
-})();
-</script>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Full Ape Ski Escape</title>
+<style>
+  body{margin:0;background:#071018;color:#fff;font-family:system-ui;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:16px}
+  a{color:#ffcc33;font-size:20px}
+  .sub{opacity:.7;font-size:14px;max-width:480px;text-align:center;line-height:1.5}
+</style>
+</head>
+<body>
+  <h1 style="color:#ffcc33;margin:0">FULL APE SKI ESCAPE</h1>
+  <p class="sub">Redirecting to the working build…</p>
+  <a href="https://cdn.jsdelivr.net/gh/davey-fresh/full-ape-ski-escape@b08f808b5c3a52fa36df6541198ec180b5a65d24/full-ape-ski-escape.html">▶ Play now</a>
+  <script>
+    location.replace('https://cdn.jsdelivr.net/gh/davey-fresh/full-ape-ski-escape@b08f808b5c3a52fa36df6541198ec180b5a65d24/full-ape-ski-escape.html');
+  </script>
 </body>
 </html>
