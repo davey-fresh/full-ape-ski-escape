@@ -1,62 +1,64 @@
 # Architecture & Technical Notes
 
-## Current Architecture (v0.3+)
+## Current Architecture (v0.6)
 
 - **Single-file HTML** (`full-ape-ski-escape.html`)
-  - HTML5 `<canvas>`
+  - HTML5 `<canvas>` (image-smoothing disabled for chunky feel)
   - Vanilla JavaScript game loop (`requestAnimationFrame`)
-  - All logic, rendering, input, and state in one file
+  - Web Audio API for simple synthesized SFX
+  - All logic, rendering, input, state, and audio in one file
 - **Why this approach?**
-  - Extremely easy to embed in any website (just drop the file or use an iframe)
+  - Extremely easy to embed (drop the file or iframe)
   - No build step, no dependencies, works offline
-  - Perfect for quick prototyping and sharing during early development
+  - Perfect for rapid iteration and sharing
 
 ## Key Systems
 
-- **Game Loop**: `update()` + `draw()` running at ~60fps
-- **Player (Titus)**: Position (`titusX`, `titusY`), speed modifiers from beer/jumps/moguls
+- **Game Loop**: `update(delta)` + `draw()` ~60fps
+- **Player (Titus)**: Position, speed modifiers (beer / jump / mogul), airborne state, lean animation
 - **World Scrolling**: Obstacles and beers move upward; player slowly descends on screen
-- **Collision**: Simple distance-based checks (generous hitboxes for feel)
-- **Chase (Mama Orangutan)**: Side-spawn + homing on player X + progressive rage (speed increase over time)
-- **Input**: Keyboard + touch (left/right half of screen)
-- **State Machine**: `intro` → `playing` → `win` / `lose`
+- **Jump**: Space/W/↑ — vertical velocity + temporary invulnerability height + speed burst
+- **Moguls**: New obstacle type that applies temporary slow
+- **Collision**: Distance-based with generous hitboxes; airborne check skips some collisions
+- **Chase (Mama Orangutan)**: Side-spawn + predictive homing on player X + progressive rage; close-call detection
+- **Feedback**: Screen shake, particle bursts, SFX, HUD warnings that intensify when close
+- **Win State**: `celebrating` mode with three procedural gorilla bros + chest-pound timing + stats panel
+- **Input**: Keyboard + touch (steer). Jump primarily keyboard for precision
+- **State Machine**: `intro` → `playing` → `celebrating` / `lose`
 
-## Design Decisions & Rationale
+## Design Decisions & Rationale (v0.6 additions)
 
-- **Single file vs modular**: Chosen for maximum embeddability and simplicity in early stages. Can be refactored later.
-- **No external libraries**: Keeps the barrier to entry extremely low.
-- **Canvas over DOM/SVG**: Best performance for many moving objects + custom rendering.
-- **Generous collision**: Feels better in a casual/fun game than pixel-perfect detection.
-- **Orangutan as persistent chaser**: Once she appears she stays on screen and keeps closing — creates constant pressure similar to SkiFree’s Yeti.
-- **Beer as main power fantasy tool**: Simple, thematic, and gives clear "escape" moments.
+- Procedural chunky pixel drawing preferred over external images for reliability and style control
+- Jump added as high-impact power fantasy tool that also creates skill expression
+- Moguls introduce temporary tension without instant fail
+- Predictive element on orangutan keeps pressure fair but threatening
+- Celebration sequence fulfills the “bros at the chalet” fantasy promised in the vision
+- Web Audio kept extremely lightweight (no assets) so the file stays self-contained
 
 ## Known Limitations / Technical Debt
 
-- All assets are either procedurally drawn or loaded from generated image files (caching can be an issue during development).
-- Collision is distance-based rather than proper bounding-box or pixel-perfect.
-- No sprite animation system yet (single static images per character).
-- Performance may degrade with very high obstacle counts on lower-end devices.
-- Audio is not yet implemented.
+- Drawing is procedural rather than full sprite sheets / multi-frame animation
+- No background music loop yet (SFX only)
+- Touch jump not implemented (steer only on mobile; jump is keyboard)
+- Performance is fine for current object counts; heavy particle spam could be profiled later
+- Still single-file; modular split remains future option when complexity grows further
 
 ## Suggested Future Structure (when ready to scale)
 
 ```
 full-ape-ski-escape/
-├── index.html                 # Main entry (or keep single-file export)
+├── index.html
 ├── src/
-│   ├── game.js                # Core loop, state, input
-│   ├── player.js              # Titus logic
-│   ├── orangutan.js           # Chase AI
+│   ├── game.js
+│   ├── player.js
+│   ├── orangutan.js
 │   ├── obstacles.js
 │   ├── rendering.js
+│   ├── audio.js
 │   ├── input.js
-├── assets/
-│   ├── sprites/             # Generated or hand-made pixel art
-│   ├── audio/
-├── styles/
+├── assets/ (optional later)
 ├── README.md
 ├── ROADMAP.md
-├── package.json             # If using a light bundler later
 ```
 
-This structure keeps things simple while allowing the project to grow without becoming a mess.
+Still keep an easy single-file export path.

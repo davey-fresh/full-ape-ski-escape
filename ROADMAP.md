@@ -1,56 +1,55 @@
 # Roadmap & Future Iterations
 
-This document outlines planned and potential future work for *Full Ape Ski Escape*, prioritized roughly by impact and feasibility.
+This document outlines planned and potential future work for *Full Ape Ski Escape*.
 
-## High Priority (Next Milestones)
+## Completed in v0.6 (Gap-Closing Pass)
 
-### 1. Core Gameplay Polish
-- [ ] Add **jumps** that give strong forward speed boost (air time + landing)
-- [ ] Add **moguls** that temporarily slow the player with bumpy animation
-- [ ] Improve collision feedback (screen shake, particles, sound on wipeout/grab)
-- [ ] Better "yard sale" wipeout animation and recovery
+- [x] Jumps with air time + speed burst
+- [x] Moguls that temporarily slow the player
+- [x] Improved collision feedback (screen shake, richer particles)
+- [x] Better yard-sale / grab feedback
+- [x] More aggressive + predictive orangutan AI
+- [x] Visual intensity when she is very close
+- [x] Proper win sequence with three gorilla bros + chest-pounding
+- [x] Level / run stats (beers, jumps, close calls, time)
+- [x] Stronger procedural 16-bit-inspired pixel drawing
+- [x] Basic Web Audio SFX (chug, jump, wipeout, land, close, win, pound)
 
-### 2. Chase & Tension
-- [ ] More aggressive and fair orangutan AI (better prediction, slight telegraphing)
-- [ ] Visual/audio warning when she gets very close
-- [ ] Different "grab" animations or outcomes
+## High Priority (Next)
 
-### 3. Win / Celebration
-- [ ] Proper win sequence when reaching the bottom
-- [ ] Three gorilla bros appear and do chest-pounding + beer chugging animation
-- [ ] Level complete screen with stats (distance, beers chugged, close calls, etc.)
-
-### 4. Visual & Audio
-- [ ] More 90s Sega Genesis / Street Fighter style assets (more frames for Titus, better obstacles, background layers)
-- [ ] Simple sound effects (boost chug, wipeout, orangutan growl, chest pound)
-- [ ] Background music loop (chiptune style)
+- [ ] Multi-frame / lean animation polish for Titus and orangutan
+- [ ] Background music (simple chiptune-style loop)
+- [ ] Touch jump gesture (or on-screen jump button)
+- [ ] More distinct "yard sale" recovery / ragdoll feel
+- [ ] Slightly more variety in obstacle placement / patterns
 
 ## Medium Priority
 
-- Multiple levels with increasing difficulty / different themes
-- Character selection (Magma, Titus, Grok, Maurice) with unique abilities
-- Power-ups beyond beer (temporary invincibility, bigger plow radius, etc.)
-- Mobile optimizations and better touch controls
+- Multiple levels or increasing difficulty segments
+- Character selection (extra gorilla variants with small ability differences)
+- Additional power-ups
 - High score / local leaderboard
-- Simple particle system improvements
+- Parallax background layers
+- Better particle system (snow, impact, beer foam variants)
 
 ## Stretch / Nice to Have
-- Full sprite sheet animations for Titus (skiing, chugging, chest pound, wipeout)
-- Parallax background layers
-- Screen shake and hit-stop on big events
-- Procedural obstacle generation or hand-crafted level segments
-- Online score sharing (lightweight)
+
+- Full sprite sheet support (optional external assets while keeping procedural fallback)
+- Screen hit-stop on big events
+- Procedural or hand-crafted longer mountain segments
+- Lightweight online score sharing
+- Accessibility options (colorblind-friendly palette, remapping)
 
 ## Technical Debt & Improvements
-- Move from single HTML file to small modular structure when complexity grows (still keep easy single-file export option)
-- Better asset pipeline for generating/updating pixel art sprites
-- Performance profiling (especially with many obstacles + particles)
-- Accessibility (colorblind modes, input remapping)
+
+- Consider light modular split when adding music + more animation systems (still export single-file)
+- Performance pass if particle or obstacle counts grow significantly
+- Mobile polish (safe areas, better touch targets)
 
 ## Suggested Iteration Approach
 
-1. **Polish current vertical slice** until it feels really good (core loop, chase tension, controls, visuals).
-2. **Add one major feature at a time** (jumps/moguls → win celebration → audio).
-3. **Expand scope only after the core 1-level experience is strong**.
+1. Polish the current v0.6 vertical slice until it feels excellent on both desktop and mobile.
+2. Add one major feature at a time (music → animation frames → second level concept).
+3. Expand scope only after the core 1-level experience is consistently fun.
 
-This keeps the project fun to work on and avoids scope creep.
+The core fantasy is now fully playable and closer to the original vision.
