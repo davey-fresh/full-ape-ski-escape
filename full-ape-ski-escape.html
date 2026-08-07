@@ -14,25 +14,25 @@
       try {
         const r = await fetch(u + (u.startsWith('http') ? '?t=' + Date.now() : ''));
         if (r.ok) {
-          const t = await r.text();
-          if (t.length > 50) return t;
+          const t = (await r.text()).trim();
+          if (t.length > 30) return t;
         }
       } catch (e) {}
     }
     return null;
   }
-  let html = '';
-  for (const f of ['p0.html','p1.html','p2.html','p3.html']) {
+  let b64 = '';
+  for (const f of ['b0.b64','b1.b64','b2.b64','b3.b64','b4.b64','b5.b64','b6.b64','b7.b64']) {
     const t = await get(f);
     if (!t) {
-      document.getElementById('s').textContent = 'Missing ' + f + ' — opening last good build...';
-      setTimeout(() => location.href = 'https://cdn.jsdelivr.net/gh/davey-fresh/full-ape-ski-escape@b08f808b5c3a52fa36df6541198ec180b5a65d24/full-ape-ski-escape.html', 600);
+      document.getElementById('s').textContent = 'Missing ' + f + ' — fallback...';
+      setTimeout(() => location.href = 'https://cdn.jsdelivr.net/gh/davey-fresh/full-ape-ski-escape@b08f808b5c3a52fa36df6541198ec180b5a65d24/full-ape-ski-escape.html', 500);
       return;
     }
-    html += t;
+    b64 += t;
   }
   document.open();
-  document.write(html);
+  document.write(atob(b64));
   document.close();
 })();
 </script>
