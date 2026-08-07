@@ -1,31 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><title>Full Ape Ski Escape</title></head>
-<body style="margin:0;background:#071018;color:#ccc;font-family:system-ui;padding:20px">
-<p id="s">Loading Full Ape Ski Escape v0.14...</p>
+<html lang="en"><head><meta charset="UTF-8"><title>Full Ape Ski Escape</title></head>
+<body style="margin:0;background:#071018;color:#aaa;font-family:system-ui;padding:16px">
+<p id="s">Loading v0.15...</p>
 <script>
-(async () => {
-  async function get(path) {
-    const urls = [path, 'https://cdn.jsdelivr.net/gh/davey-fresh/full-ape-ski-escape@main/'+path, 'https://raw.githubusercontent.com/davey-fresh/full-ape-ski-escape/main/'+path];
-    for (const u of urls) {
-      try {
-        const r = await fetch(u + (u.startsWith('http')?'?t='+Date.now():''));
-        if (r.ok) return (await r.text()).trim();
-      } catch(e) {}
-    }
-    return null;
+(async()=>{
+  async function load(p){
+    for(const u of [p,'https://cdn.jsdelivr.net/gh/davey-fresh/full-ape-ski-escape@main/'+p,'https://raw.githubusercontent.com/davey-fresh/full-ape-ski-escape/main/'+p]){
+      try{const r=await fetch(u+(u.startsWith('http')?'?t='+Date.now():''));if(r.ok){const t=(await r.text()).trim();if(t.length>100)return t}}catch(e){}
+    }return null;
   }
-  const a = await get('game_a.b64');
-  const b = await get('game_b.b64');
-  if (!a || !b) {
-    document.getElementById('s').textContent = 'Load failed — opening last good build...';
-    location.href = 'https://htmlpreview.github.io/?https://github.com/davey-fresh/full-ape-ski-escape/blob/b08f808b5c3a52fa36df6541198ec180b5a65d24/full-ape-ski-escape.html';
-    return;
-  }
-  document.open();
-  document.write(atob(a+b));
-  document.close();
+  const a=await load('ga.b64'),b=await load('gb.b64');
+  if(!a||!b){document.getElementById('s').textContent='Failed to load. Try hard refresh.';return}
+  document.open();document.write(atob(a+b));document.close();
 })();
-</script>
-</body>
-</html>
+</script></body></html>
