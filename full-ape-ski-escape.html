@@ -1,25 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><title>Full Ape Ski Escape</title></head>
-<body>
-<p id="s" style="font-family:system-ui;color:#ccc;background:#071018;margin:0;padding:20px">Loading v0.14...</p>
+<body style="margin:0;background:#071018;color:#ccc;font-family:system-ui;padding:20px">
+<p id="s">Loading Full Ape Ski Escape v0.14...</p>
 <script>
 (async () => {
-  const files = ['chunk0.txt','chunk1.txt','chunk2.txt','chunk3.txt'];
-  let b64 = '';
-  for (const f of files) {
-    try {
-      const r = await fetch(f);
-      if (!r.ok) throw new Error(f + ' ' + r.status);
-      b64 += await r.text();
-    } catch(e) {
-      document.getElementById('s').textContent = 'Chunk load failed, opening last good build...';
-      location.href = 'https://htmlpreview.github.io/?https://github.com/davey-fresh/full-ape-ski-escape/blob/b08f808b5c3a52fa36df6541198ec180b5a65d24/full-ape-ski-escape.html';
-      return;
+  async function get(path) {
+    const urls = [path, 'https://cdn.jsdelivr.net/gh/davey-fresh/full-ape-ski-escape@main/'+path, 'https://raw.githubusercontent.com/davey-fresh/full-ape-ski-escape/main/'+path];
+    for (const u of urls) {
+      try {
+        const r = await fetch(u + (u.startsWith('http')?'?t='+Date.now():''));
+        if (r.ok) return (await r.text()).trim();
+      } catch(e) {}
     }
+    return null;
+  }
+  const a = await get('game_a.b64');
+  const b = await get('game_b.b64');
+  if (!a || !b) {
+    document.getElementById('s').textContent = 'Load failed — opening last good build...';
+    location.href = 'https://htmlpreview.github.io/?https://github.com/davey-fresh/full-ape-ski-escape/blob/b08f808b5c3a52fa36df6541198ec180b5a65d24/full-ape-ski-escape.html';
+    return;
   }
   document.open();
-  document.write(atob(b64));
+  document.write(atob(a+b));
   document.close();
 })();
 </script>
