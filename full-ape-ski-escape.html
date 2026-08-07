@@ -1,20 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Full Ape Ski Escape</title>
-<style>
-  body{margin:0;background:#071018;color:#fff;font-family:system-ui;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:16px}
-  a{color:#ffcc33;font-size:20px}
-  .sub{opacity:.7;font-size:14px}
-</style>
-</head>
-<body>
-  <h1 style="color:#ffcc33">FULL APE SKI ESCAPE</h1>
-  <p class="sub">Loading game...</p>
-  <a href="https://cdn.jsdelivr.net/gh/davey-fresh/full-ape-ski-escape@b08f808b5c3a52fa36df6541198ec180b5a65d24/full-ape-ski-escape.html">Play now if not redirected</a>
-  <script>
-    location.replace('https://cdn.jsdelivr.net/gh/davey-fresh/full-ape-ski-escape@b08f808b5c3a52fa36df6541198ec180b5a65d24/full-ape-ski-escape.html');
-  </script>
+<html lang="en"><head><meta charset="UTF-8"><title>Full Ape Ski Escape</title></head>
+<body style="margin:0;background:#071018;color:#ccc;font-family:system-ui;padding:16px">
+<p id="s">Loading Full Ape Ski Escape v0.15...</p>
+<script>
+(async () => {
+  async function get(path) {
+    const urls = [
+      path,
+      'https://cdn.jsdelivr.net/gh/davey-fresh/full-ape-ski-escape@main/' + path,
+      'https://raw.githubusercontent.com/davey-fresh/full-ape-ski-escape/main/' + path
+    ];
+    for (const u of urls) {
+      try {
+        const r = await fetch(u + (u.startsWith('http') ? '?t=' + Date.now() : ''));
+        if (r.ok) {
+          const t = await r.text();
+          if (t.length > 50) return t;
+        }
+      } catch (e) {}
+    }
+    return null;
+  }
+  let html = '';
+  for (const f of ['p0.html','p1.html','p2.html','p3.html']) {
+    const t = await get(f);
+    if (!t) {
+      document.getElementById('s').textContent = 'Missing ' + f + ' — opening last good build...';
+      setTimeout(() => location.href = 'https://cdn.jsdelivr.net/gh/davey-fresh/full-ape-ski-escape@b08f808b5c3a52fa36df6541198ec180b5a65d24/full-ape-ski-escape.html', 600);
+      return;
+    }
+    html += t;
+  }
+  document.open();
+  document.write(html);
+  document.close();
+})();
+</script>
 </body>
 </html>
