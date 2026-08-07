@@ -21,7 +21,7 @@
   Every run generates a unique mountain profile & zones
 </div>
 <script>
-// FULL APE SKI ESCAPE v0.11 — Fixed ears, canine teeth, ramps, freer jumps, lipstick Mama
+// FULL APE SKI ESCAPE v0.12 — Great smile, V-taper, pecs, 6-pack abs
 const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
 ctx.imageSmoothingEnabled=false;
 
@@ -123,15 +123,43 @@ function drawTitus(tx,ty,leanAmt,bob,chugging,speed){
   ell(11+legSpread+lx*0.3,52+legBend,8,12,'#141414');
   ell(11+legSpread+lx*0.3,52+legBend,5,8,'#2a2a2a');
 
-  ell(lx*0.5,12,28,26,'#101010');
-  ell(lx*0.5,10,24,22,'#1e1e1e');
-  ell(lx*0.5-9,4,9,10,'#2a2a2a');
-  ell(lx*0.5+9,4,9,10,'#2a2a2a');
-  ell(lx*0.5-9,3,5,6,'#383838');
-  ell(lx*0.5+9,3,5,6,'#383838');
-  px(lx*0.5-2,14,4,12,'#181818');
-  ell(lx*0.5-24,-2,8,6,'#0c0c0c');
-  ell(lx*0.5+24,-2,8,6,'#0c0c0c');
+  const tx0 = lx*0.5;
+  // Wide upper torso
+  ell(tx0, 6, 30, 18, '#0e0e0e');
+  ell(tx0, 6, 26, 15, '#1a1a1a');
+  // Narrow waist
+  ell(tx0, 20, 18, 14, '#121212');
+  ell(tx0, 20, 14, 11, '#1e1e1e');
+  ell(tx0, 28, 12, 8, '#161616');
+
+  // Pecs
+  ell(tx0-11, 2, 12, 10, '#222');
+  ell(tx0+11, 2, 12, 10, '#222');
+  ell(tx0-11, 1, 8, 7, '#2e2e2e');
+  ell(tx0+11, 1, 8, 7, '#2e2e2e');
+  ell(tx0-11, 0, 4, 4, '#3a3a3a');
+  ell(tx0+11, 0, 4, 4, '#3a3a3a');
+  px(tx0-2, 2, 4, 8, '#181818');
+
+  // 6-pack
+  px(tx0-7, 12, 6, 5, '#1a1a1a');
+  px(tx0+1, 12, 6, 5, '#1a1a1a');
+  px(tx0-6, 13, 4, 3, '#2a2a2a');
+  px(tx0+2, 13, 4, 3, '#2a2a2a');
+  px(tx0-7, 18, 6, 5, '#1a1a1a');
+  px(tx0+1, 18, 6, 5, '#1a1a1a');
+  px(tx0-6, 19, 4, 3, '#2a2a2a');
+  px(tx0+2, 19, 4, 3, '#2a2a2a');
+  px(tx0-6, 24, 5, 4, '#1a1a1a');
+  px(tx0+1, 24, 5, 4, '#1a1a1a');
+  px(tx0-5, 25, 3, 2, '#2a2a2a');
+  px(tx0+2, 25, 3, 2, '#2a2a2a');
+  px(tx0-1, 12, 2, 16, '#0e0e0e');
+
+  ell(tx0-26, -4, 9, 7, '#0a0a0a');
+  ell(tx0+26, -4, 9, 7, '#0a0a0a');
+  ell(tx0-24, -6, 5, 4, '#181818');
+  ell(tx0+24, -6, 5, 4, '#181818');
 
   const hx=lx*0.7;
   ell(hx,-28,20,20,'#0e0e0e');
@@ -139,25 +167,25 @@ function drawTitus(tx,ty,leanAmt,bob,chugging,speed){
   ell(hx,-42,9,5,'#0a0a0a');
   ell(hx-8,-40,6,4,'#121212');
   ell(hx+8,-40,6,4,'#121212');
-  // Proper small gorilla ears set back on sides
   ell(hx-18,-26,5,7,'#0c0c0c');
   ell(hx-17,-26,3,5,'#1a1a1a');
   ell(hx+18,-26,5,7,'#0c0c0c');
   ell(hx+17,-26,3,5,'#1a1a1a');
   ell(hx,-34,11,7,'#2a2a2a');
 
-  ell(hx,-15,13,10,'#1a1a1a');
-  ell(hx,-14,10,7,'#282828');
-  // Canine teeth
-  px(hx-8,-13,16,5,'#f0ebe0');
-  px(hx-4,-12,3,4,'#fff');
-  px(hx+1,-12,3,4,'#fff');
-  px(hx-8,-14,3,6,'#fff');
-  px(hx-7,-15,2,2,'#fff');
-  px(hx+5,-14,3,6,'#fff');
-  px(hx+6,-15,2,2,'#fff');
-  px(hx-8,-14,16,2,'#3a2a2a');
-  px(hx-6,-7,12,2,'#0a0a0a');
+  // Great smile + canines
+  ell(hx,-15,14,11,'#1a1a1a');
+  ell(hx,-14,11,8,'#282828');
+  px(hx-10,-14,20,7,'#f5f0e0');
+  px(hx-4,-13,4,5,'#fff');
+  px(hx+1,-13,4,5,'#fff');
+  px(hx-10,-15,4,8,'#fff');
+  px(hx-9,-16,2,2,'#fff');
+  px(hx+6,-15,4,8,'#fff');
+  px(hx+7,-16,2,2,'#fff');
+  px(hx-10,-15,20,2,'#4a2a2a');
+  px(hx-9,-6,18,3,'#0a0a0a');
+  px(hx-7,-5,14,2,'#1a1a1a');
 
   px(hx-15,-31,30,11,'#050505');
   px(hx-13,-29,11,7,'#0e2040');
@@ -209,29 +237,24 @@ function drawMama(ox,oy,scale,rage){
   const s=scale;
   ctx.save();
   ctx.translate(ox,oy);
-
   ell(0,54*s,40*s,10*s,'rgba(0,0,0,0.32)');
-
   ell(-48*s,8*s,22*s,12*s,'#b04810');
   ell(-48*s,8*s,16*s,8*s,'#d06020');
   ell(-62*s,14*s,10*s,10*s,'#a04010');
   ell(48*s,8*s,22*s,12*s,'#b04810');
   ell(48*s,8*s,16*s,8*s,'#d06020');
   ell(62*s,14*s,10*s,10*s,'#a04010');
-
   ell(0,18*s,38*s,32*s,'#a04010');
   ell(0,16*s,32*s,26*s,'#c05818');
   ell(0,22*s,22*s,16*s,'#d87830');
   ell(-22*s,28*s,8*s,5*s,'#8a3810');
   ell(18*s,30*s,9*s,5*s,'#8a3810');
-
   ell(0,-28*s,30*s,28*s,'#a04010');
   ell(0,-26*s,24*s,22*s,'#c05818');
   ell(0,-32*s,16*s,12*s,'#d87830');
   ell(-26*s,-36*s,8*s,7*s,'#8a3810');
   ell(26*s,-36*s,8*s,7*s,'#8a3810');
   ell(0,-48*s,10*s,6*s,'#8a3810');
-
   ell(-12*s,-30*s,8*s,8*s,'#1a1008');
   ell(12*s,-30*s,8*s,8*s,'#1a1008');
   ell(-11*s,-28*s,5*s,5*s,'#f0e0c0');
@@ -240,8 +263,6 @@ function drawMama(ox,oy,scale,rage){
   ell(14*s,-27*s,3*s,3*s,'#1a0800');
   px(-18*s,-36*s,14*s,4*s,'#6a2808');
   px(4*s,-36*s,14*s,4*s,'#6a2808');
-
-  // Mouth + lipstick
   ell(0,-12*s,18*s,12*s,'#6a2008');
   ell(0,-11*s,16*s,10*s,'#c02040');
   ell(0,-10*s,13*s,7*s,'#e03858');
@@ -251,22 +272,14 @@ function drawMama(ox,oy,scale,rage){
   px(3*s,-11*s,5*s,4*s,'#fff');
   px(-10*s,-5*s,20*s,4*s,'#c02040');
   px(-8*s,-4*s,16*s,2*s,'#e03858');
-
   ell(0,-18*s,7*s,5*s,'#c05818');
   px(-3*s,-18*s,2*s,2*s,'#3a1008');
   px(2*s,-18*s,2*s,2*s,'#3a1008');
-
   ell(-30*s,-26*s,7*s,9*s,'#a04010');
   ell(-29*s,-26*s,4*s,6*s,'#c05818');
   ell(30*s,-26*s,7*s,9*s,'#a04010');
   ell(29*s,-26*s,4*s,6*s,'#c05818');
-
-  if(rage>0.4){
-    ctx.globalAlpha=Math.min(0.25,rage*0.3);
-    ctx.fillStyle='#ff4400';
-    ctx.beginPath();ctx.arc(0,-8*s,58*s,0,Math.PI*2);ctx.fill();
-    ctx.globalAlpha=1;
-  }
+  if(rage>0.4){ctx.globalAlpha=Math.min(0.25,rage*0.3);ctx.fillStyle='#ff4400';ctx.beginPath();ctx.arc(0,-8*s,58*s,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1}
   ctx.restore();
 }
 
@@ -303,27 +316,11 @@ function drawMogul(x,y){ctx.fillStyle='#98b8d8';ctx.beginPath();ctx.ellipse(x,y+
 function drawBeer(x,y){px(x-8,y,16,22,'#b88000');px(x-6,y+2,12,16,'#d8a000');px(x-7,y-4,14,5,'#c8c8c8');px(x-5,y-5,10,3,'#e8e8e8');px(x-4,y+4,8,6,'#f0c020');px(x-3,y+5,4,3,'#fff0a0');px(x-6,y+12,12,3,'#fff')}
 function drawRamp(x,y){
   ctx.fillStyle='#8aa8c0';
-  ctx.beginPath();
-  ctx.moveTo(x-28,y+18);
-  ctx.lineTo(x+8,y-8);
-  ctx.lineTo(x+28,y+4);
-  ctx.lineTo(x+28,y+18);
-  ctx.closePath();
-  ctx.fill();
+  ctx.beginPath();ctx.moveTo(x-28,y+18);ctx.lineTo(x+8,y-8);ctx.lineTo(x+28,y+4);ctx.lineTo(x+28,y+18);ctx.closePath();ctx.fill();
   ctx.fillStyle='#b0cce0';
-  ctx.beginPath();
-  ctx.moveTo(x-24,y+14);
-  ctx.lineTo(x+6,y-4);
-  ctx.lineTo(x+22,y+6);
-  ctx.lineTo(x+22,y+14);
-  ctx.closePath();
-  ctx.fill();
-  ctx.strokeStyle='#d8e8f4';
-  ctx.lineWidth=2;
-  ctx.beginPath();
-  ctx.moveTo(x-26,y+16);
-  ctx.lineTo(x+6,y-6);
-  ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x-24,y+14);ctx.lineTo(x+6,y-4);ctx.lineTo(x+22,y+6);ctx.lineTo(x+22,y+14);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='#d8e8f4';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(x-26,y+16);ctx.lineTo(x+6,y-6);ctx.stroke();
 }
 
 function drawTerrainSurface(camDist){
@@ -351,54 +348,36 @@ function update(delta){
   if(gameState!=='playing')return;
   const now=Date.now(),elapsed=now-gameStartTime;
   if(jumpCooldown>0)jumpCooldown-=delta;
-
   let move=0;
   if(keys['ArrowLeft']||keys['a']||keys['A'])move-=1;
   if(keys['ArrowRight']||keys['d']||keys['D'])move+=1;
   if(touchLeft)move-=1;if(touchRight)move+=1;
   if(keys[' ']||keys['ArrowUp']||keys['w']||keys['W'])doJump();
-
   leanTarget=move;lean+=(leanTarget-lean)*0.18;
   bodyBob=Math.sin(now/90)*(1.2+(currentSpeedMod-1)*2.5);
   if(chugTimer>0)chugTimer-=delta;
-
   const handling=(currentSpeedMod>1.35||isAirborne)?0.82:1;
   titusX+=move*6.5*handling;titusX=Math.max(48,Math.min(752,titusX));
-
   const terrainInfluence=heightAt(distance)*0.12;
   const baseTargetY=268+(distance/LEVEL_DISTANCE)*88-terrainInfluence;
   if(isAirborne){
     jumpVy+=0.36;titusY+=jumpVy;
-    if(titusY>=baseTargetY){
-      titusY=baseTargetY;isAirborne=false;jumpVy=0;airJumpsLeft=1;
-      sfxLand();triggerShake(5);createParticles(titusX,titusY+40,'#d0e8ff',8,2);
-    }
-  }else{
-    titusY+=(baseTargetY-titusY)*0.02;
-  }
-
-  if(boostTimeLeft>0){boostTimeLeft-=delta;currentSpeedMod=1.72}
-  else if(!isAirborne)currentSpeedMod=1;
+    if(titusY>=baseTargetY){titusY=baseTargetY;isAirborne=false;jumpVy=0;airJumpsLeft=1;sfxLand();triggerShake(5);createParticles(titusX,titusY+40,'#d0e8ff',8,2)}
+  }else{titusY+=(baseTargetY-titusY)*0.02}
+  if(boostTimeLeft>0){boostTimeLeft-=delta;currentSpeedMod=1.72}else if(!isAirborne)currentSpeedMod=1;
   if(mogulSlowLeft>0){mogulSlowLeft-=delta;currentSpeedMod*=0.55}
   if(isAirborne)currentSpeedMod=Math.max(currentSpeedMod,1.48);
-
   const slope=slopeAt(distance);
   const slopeBoost=1+Math.max(-0.08,Math.min(0.12,-slope*0.4));
   const effectiveScroll=scrollSpeed*currentSpeedMod*slopeBoost;
   bgOffset=(bgOffset+effectiveScroll*0.55)%48;
-
   for(let i=obstacles.length-1;i>=0;i--){
-    const obs=obstacles[i];
-    obs.y-=effectiveScroll*obs.speedMod;
+    const obs=obstacles[i];obs.y-=effectiveScroll*obs.speedMod;
     if(obs.sway)obs.x+=Math.sin((now+i*260)/360)*obs.sway*0.85;
     const airSafe=isAirborne&&(baseTargetY-titusY)>28;
     if(!airSafe&&obs.y>titusY-48&&obs.y<titusY+52){
       if(Math.abs(obs.x-titusX)<(obs.width*0.55+18)){
-        if(obs.type==='ramp'){
-          isAirborne=true;jumpVy=-9.5;airJumpsLeft=1;currentSpeedMod=Math.max(currentSpeedMod,1.65);
-          sfxRamp();triggerShake(6);createParticles(obs.x,obs.y,'#d0e8ff',14,3.5);
-          jumpsMade++;obstacles.splice(i,1);continue;
-        }
+        if(obs.type==='ramp'){isAirborne=true;jumpVy=-9.5;airJumpsLeft=1;currentSpeedMod=Math.max(currentSpeedMod,1.65);sfxRamp();triggerShake(6);createParticles(obs.x,obs.y,'#d0e8ff',14,3.5);jumpsMade++;obstacles.splice(i,1);continue}
         if(obs.type==='mogul'){mogulSlowLeft=900;sfxMogul();triggerShake(4);createParticles(obs.x,obs.y,'#c0d8f0',7,2);obstacles.splice(i,1);continue}
         if(['puke','rock','trash'].includes(obs.type)){createParticles(obs.x,obs.y,obs.type==='puke'?'#8aba3a':'#777',9);obstacles.splice(i,1);continue}
         else{gameState='lose';sfxWipe();triggerShake(18);createParticles(titusX,titusY,'#fff',32,5);createParticles(titusX,titusY,'#ffaa66',12,4);return}
@@ -406,10 +385,8 @@ function update(delta){
     }
     if(obs.y<-90)obstacles.splice(i,1);
   }
-
   for(let i=beers.length-1;i>=0;i--){
-    const beer=beers[i];
-    beer.y-=effectiveScroll*1.05;
+    const beer=beers[i];beer.y-=effectiveScroll*1.05;
     if(!isAirborne||(baseTargetY-titusY)<35){
       if(beer.y>titusY-48&&beer.y<titusY+42&&Math.abs(beer.x-titusX)<38){
         boostTimeLeft=5000;beersChugged++;chugTimer=780;sfxChug();
@@ -419,32 +396,18 @@ function update(delta){
     }
     if(beer.y<-60)beers.splice(i,1);
   }
-
   distance+=effectiveScroll*(delta/14.5);
-  if(now-lastSpawn>320){
-    lastSpawn=now;
-    const zone=getZone(distance);
-    const spawnChance=zone==='open'?0.62:zone==='trees'?0.85:0.78;
-    if(Math.random()<spawnChance)spawnObstacle();
-    if(Math.random()<0.28)spawnBeer();
-  }
-
+  if(now-lastSpawn>320){lastSpawn=now;const zone=getZone(distance);const spawnChance=zone==='open'?0.62:zone==='trees'?0.85:0.78;if(Math.random()<spawnChance)spawnObstacle();if(Math.random()<0.28)spawnBeer()}
   if(!chaseActive&&elapsed>chaseStartTime){chaseActive=true;orangutanX=(Math.random()<0.5)?-70:870;orangutanY=titusY-200;orangutanRage=0}
   if(chaseActive){
     orangutanRage+=0.00125+(distance/LEVEL_DISTANCE)*0.0004;
-    const predict=move*18;
-    const dx=(titusX+predict)-orangutanX;
-    orangutanX+=dx*(0.052+orangutanRage*0.01);
-    const targetY=titusY-70;
-    const dy=targetY-orangutanY;
-    const boostSlow=(currentSpeedMod>1.4)?0.42:1;
-    orangutanY+=dy*0.048*boostSlow;
-    if(orangutanY>titusY+20)orangutanY-=6;
+    const predict=move*18;const dx=(titusX+predict)-orangutanX;orangutanX+=dx*(0.052+orangutanRage*0.01);
+    const targetY=titusY-70;const dy=targetY-orangutanY;const boostSlow=(currentSpeedMod>1.4)?0.42:1;
+    orangutanY+=dy*0.048*boostSlow;if(orangutanY>titusY+20)orangutanY-=6;
     const dist=Math.hypot(orangutanX-titusX,orangutanY-titusY);
     if(dist<115&&now-lastCloseSfx>900){closeCalls++;lastCloseSfx=now;sfxClose();triggerShake(3)}
     if(dist<62){gameState='lose';sfxWipe();triggerShake(20);createParticles(titusX,titusY,'#ff6622',28,5);return}
   }
-
   for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.x+=p.vx;p.y+=p.vy;p.life-=delta;p.vy+=0.04;if(p.life<=0)particles.splice(i,1)}
   if(shake>0)shake*=0.88;if(shake<0.4)shake=0;
   if(distance>=LEVEL_DISTANCE){gameState='celebrating';celebTime=0;sfxWin();bros=[{x:280,y:380,phase:0},{x:400,y:370,phase:1.2},{x:520,y:380,phase:2.4}];createParticles(400,300,'#ffcc33',40,6)}
