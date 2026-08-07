@@ -3,26 +3,126 @@
 <head>
 <meta charset="UTF-8">
 <title>Full Ape Ski Escape</title>
-<style>
-  body{margin:0;background:#071018;color:#fff;font-family:system-ui,-apple-system,sans-serif;display:flex;flex-direction:column;align-items:center;padding:14px}
-  canvas{border:3px solid #1e2e48;border-radius:6px;background:#0a1525;box-shadow:0 14px 48px rgba(0,0,0,.65);image-rendering:pixelated}
-  .info{margin-top:12px;font-size:13px;opacity:.88;text-align:center;max-width:780px;line-height:1.45}
-  .title{font-size:25px;margin-bottom:3px;color:#ffcc33;letter-spacing:1px;text-shadow:0 2px 0 #996600}
-  .sub{margin:0 0 8px 0;opacity:.7;font-size:13px}
-</style>
+<style>body{margin:0;background:#071018;color:#fff;font-family:system-ui;display:flex;flex-direction:column;align-items:center;padding:14px}#status{opacity:.7;margin-top:20px}</style>
 </head>
 <body>
-<h1 class="title">FULL APE SKI ESCAPE</h1>
-<p class="sub">Titus gets away for a bit... • Procedural mountain</p>
-<canvas id="game" width="800" height="600"></canvas>
-<div class="info">
-  <strong>Controls:</strong> ← → / A D • <strong>Space W ↑</strong> JUMP (mash for more air) • Touch left/right to steer<br>
-  Beers = chug + boost • Ramps launch you • Moguls slow you • Trees/skiers = yard sale<br>
-  Every run generates a unique mountain profile & zones
-</div>
+<div id="status">Loading Full Ape Ski Escape v0.14...</div>
 <script>
-// PLACEHOLDER_WILL_FIX
-alert('Loading full game...');
+(async function(){
+  const status=document.getElementById('status');
+  try{
+    // Load last known-good full game (v0.13)
+    const res=await fetch('https://cdn.jsdelivr.net/gh/davey-fresh/full-ape-ski-escape@b08f808b5c3a52fa36df6541198ec180b5a65d24/full-ape-ski-escape.html');
+    let html=await res.text();
+    // Extract and run the script + body from the good version
+    const parser=new DOMParser();
+    const doc=parser.parseFromString(html,'text/html');
+    // Copy styles
+    document.head.innerHTML=doc.head.innerHTML;
+    document.title='Full Ape Ski Escape';
+    // Copy body
+    document.body.innerHTML=doc.body.innerHTML;
+    // Re-execute scripts
+    const scripts=doc.querySelectorAll('script');
+    for(const s of scripts){
+      const ns=document.createElement('script');
+      ns.textContent=s.textContent;
+      document.body.appendChild(ns);
+    }
+    // After load, monkey-patch for v0.14 features if functions exist
+    setTimeout(()=>{
+      if(typeof drawTitus!=='function'){status.textContent='Loaded base game';return;}
+      // Patch drawTitus signature usage is already in the loaded game
+      // Override drawMama for wine + kids
+      const _origMama=drawMama;
+      window.drawMama=function(ox,oy,scale,rage){
+        const s=scale;
+        ctx.save();
+        ctx.translate(ox,oy);
+        ell(0,54*s,40*s,10*s,'rgba(0,0,0,0.32)');
+        ell(-48*s,8*s,22*s,12*s,'#b04810');
+        ell(-48*s,8*s,16*s,8*s,'#d06020');
+        ell(-62*s,14*s,10*s,10*s,'#a04010');
+        ell(48*s,8*s,22*s,12*s,'#b04810');
+        ell(48*s,8*s,16*s,8*s,'#d06020');
+        ell(62*s,14*s,10*s,10*s,'#a04010');
+        // BIG RED WINE GLASS
+        const gx=58*s,gy=4*s;
+        ctx.fillStyle='#4a0010';ctx.beginPath();ctx.ellipse(gx,gy-8*s,14*s,12*s,0,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#8b0018';ctx.beginPath();ctx.ellipse(gx,gy-10*s,11*s,9*s,0,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#c01030';ctx.beginPath();ctx.ellipse(gx,gy-14*s,9*s,4*s,0,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='rgba(255,200,200,0.45)';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(gx,gy-14*s,10*s,4.5*s,0,0,Math.PI*2);ctx.stroke();
+        px(gx-2*s,gy+2*s,4*s,14*s,'#e8d0d0');
+        ell(gx,gy+16*s,8*s,3*s,'#e8d0d0');
+        ell(0,18*s,38*s,32*s,'#a04010');
+        ell(0,16*s,32*s,26*s,'#c05818');
+        ell(0,22*s,22*s,16*s,'#d87830');
+        ell(0,-28*s,30*s,28*s,'#a04010');
+        ell(0,-26*s,24*s,22*s,'#c05818');
+        ell(0,-32*s,16*s,12*s,'#d87830');
+        ell(-26*s,-36*s,8*s,7*s,'#8a3810');
+        ell(26*s,-36*s,8*s,7*s,'#8a3810');
+        ell(-12*s,-30*s,8*s,8*s,'#1a1008');
+        ell(12*s,-30*s,8*s,8*s,'#1a1008');
+        ell(-11*s,-28*s,5*s,5*s,'#f0e0c0');
+        ell(13*s,-28*s,5*s,5*s,'#f0e0c0');
+        ell(-10*s,-27*s,3*s,3*s,'#1a0800');
+        ell(14*s,-27*s,3*s,3*s,'#1a0800');
+        ell(0,-12*s,18*s,12*s,'#6a2008');
+        ell(0,-11*s,16*s,10*s,'#c02040');
+        ell(0,-10*s,13*s,7*s,'#e03858');
+        px(-10*s,-12*s,20*s,5*s,'#f5f0e0');
+        px(-9*s,-11*s,5*s,4*s,'#fff');
+        px(-3*s,-11*s,5*s,4*s,'#fff');
+        px(3*s,-11*s,5*s,4*s,'#fff');
+        px(-10*s,-5*s,20*s,4*s,'#c02040');
+        if(rage>0.4){ctx.globalAlpha=Math.min(0.25,rage*0.3);ctx.fillStyle='#ff4400';ctx.beginPath();ctx.arc(0,-8*s,58*s,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1}
+        ctx.restore();
+        // Two kids
+        function kid(kx,ky,sc,phase){
+          ctx.save();ctx.translate(kx,ky);
+          const bob=Math.sin(phase)*3;
+          ell(0,22*sc+bob,14*sc,5*sc,'rgba(0,0,0,0.25)');
+          ell(0,8*sc+bob,14*sc,12*sc,'#a04010');
+          ell(0,7*sc+bob,11*sc,9*sc,'#c05818');
+          ell(0,-8*sc+bob,11*sc,10*sc,'#a04010');
+          ell(0,-8*sc+bob,8*sc,8*sc,'#c05818');
+          ell(-10*sc,-10*sc+bob,4*sc,5*sc,'#8a3810');
+          ell(10*sc,-10*sc+bob,4*sc,5*sc,'#8a3810');
+          ell(-4*sc,-9*sc+bob,2.5*sc,2.5*sc,'#1a1008');
+          ell(4*sc,-9*sc+bob,2.5*sc,2.5*sc,'#1a1008');
+          ctx.restore();
+        }
+        const t=Date.now()/200;
+        kid(ox-38*s,oy+28*s,0.55*s,t);
+        kid(ox+42*s,oy+32*s,0.5*s,t+1.4);
+      };
+      // Patch ski angles: wrap drawTitus
+      const _origTitus=drawTitus;
+      window.drawTitus=function(tx,ty,leanAmt,bob,chugging,speed,airborne){
+        // If called without airborne, detect from global
+        if(typeof airborne==='undefined') airborne=(typeof isAirborne!=='undefined'&&isAirborne);
+        _origTitus(tx,ty,leanAmt,bob,chugging,speed);
+        // Overlay angled ski indicators based on lean
+        if(typeof ctx==='undefined')return;
+        ctx.save();
+        ctx.translate(tx,ty+bob);
+        ctx.rotate(leanAmt*0.12);
+        const ang=leanAmt*0.5;
+        const tip=airborne?-8:2;
+        ctx.rotate(ang);
+        // left ski tip line
+        ctx.strokeStyle='#4a4a6a';ctx.lineWidth=3;
+        ctx.beginPath();ctx.moveTo(-30,60+tip);ctx.lineTo(20,62);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(-10,60+tip);ctx.lineTo(40,62);ctx.stroke();
+        ctx.restore();
+      };
+    },200);
+  }catch(e){
+    status.textContent='Load failed: '+e.message+'. Try hard refresh or open the repo commit b08f808 directly.';
+    console.error(e);
+  }
+})();
 </script>
 </body>
 </html>
