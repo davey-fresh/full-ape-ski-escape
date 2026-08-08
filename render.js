@@ -1,4 +1,4 @@
-// FULL APE SKI ESCAPE v0.15 — render + gameLoop
+// FULL APE SKI ESCAPE v0.16 — render + gameLoop
 function draw(){
   const sx=shake?(Math.random()-0.5)*shake:0,sy=shake?(Math.random()-0.5)*shake:0;
   ctx.save();ctx.translate(sx,sy);
@@ -35,6 +35,34 @@ function draw(){
     ctx.fillText(`Beers: ${beersChugged}  •  Jumps: ${jumpsMade}  •  Close calls: ${closeCalls}`,400,480);
     ctx.fillText(`Time: ${t}s  •  Seed: ${terrainSeed}`,400,505);
     ctx.fillText('Click / tap to escape again (new mountain)',400,530);
+  }else if(gameState==='lose'){
+    for(const obs of obstacles){
+      if(obs.type==='tree')drawTree(obs.x,obs.y);
+      else if(obs.type==='skier')drawSkier(obs.x,obs.y);
+      else if(obs.type==='rock')drawRock(obs.x,obs.y);
+      else if(obs.type==='trash')drawTrash(obs.x,obs.y);
+      else if(obs.type==='banana')drawBanana(obs.x,obs.y);
+      else if(obs.type==='mogul')drawMogul(obs.x,obs.y);
+      else if(obs.type==='ramp')drawRamp(obs.x,obs.y);
+    }
+    ctx.fillStyle='rgba(5,12,24,0.4)';ctx.fillRect(0,0,800,600);
+    const fx=titusX, fy=Math.min(titusY+40,480);
+    ell(fx,fy+8,48,14,'rgba(200,220,240,0.35)');
+    ell(fx-10,fy+4,22,8,'rgba(230,240,255,0.4)');
+    drawFallenTitus(fx, fy-10, loseTime);
+    for(const d of wipeoutDebris) drawDebrisItem(d);
+    for(const p of particles){ctx.globalAlpha=Math.max(0.12,p.life/500);px(p.x,p.y,p.size,p.size,p.color)}
+    ctx.globalAlpha=1;
+    ctx.fillStyle='rgba(8,14,28,0.72)';px(120,40,560,90);
+    ctx.fillStyle='#ff3838';ctx.font='bold 42px system-ui';ctx.textAlign='center';
+    ctx.fillText('YARD SALE...',400,90);
+    ctx.fillStyle='#fff';ctx.font='18px system-ui';
+    ctx.fillText('Skis everywhere. Face full of snow.',400,120);
+    const t=((Date.now()-runStartTime)/1000).toFixed(1);
+    ctx.fillStyle='rgba(12,24,44,0.9)';px(180,500,440,70);
+    ctx.fillStyle='#ffcc33';ctx.font='14px system-ui';
+    ctx.fillText(`Made it ${Math.floor(distance)}m  •  ${beersChugged} beers  •  ${closeCalls} close calls  •  ${t}s`,400,525);
+    ctx.fillStyle='#bbb';ctx.font='15px system-ui';ctx.fillText('Click / tap for a new mountain',400,555);
   }else{
     for(const obs of obstacles){
       if(obs.type==='tree')drawTree(obs.x,obs.y);
@@ -74,19 +102,6 @@ function draw(){
       ctx.font='bold 15px system-ui';
       if(dist<110){ctx.fillStyle='#ff3030';ctx.fillText("SHE'S RIGHT THERE!",555,46)}
       else{ctx.fillStyle='#ff6060';ctx.fillText("SHE'S COMING...",575,46)}
-    }
-    if(gameState==='lose'){
-      ctx.fillStyle='rgba(0,0,0,0.84)';ctx.fillRect(0,0,800,600);
-      ctx.fillStyle='#ff3838';ctx.font='bold 42px system-ui';ctx.textAlign='center';
-      ctx.fillText('YARD SALE...',400,170);
-      ctx.fillStyle='#fff';ctx.font='19px system-ui';
-      ctx.fillText('She grabbed you and dragged you off the mountain.',400,230);
-      ctx.fillText('Time to go watch the kids.',400,260);
-      const t=((Date.now()-runStartTime)/1000).toFixed(1);
-      ctx.font='15px system-ui';ctx.fillStyle='#ffcc33';
-      ctx.fillText(`Made it ${Math.floor(distance)}m  •  ${beersChugged} beers  •  ${closeCalls} close calls  •  ${t}s`,400,320);
-      ctx.fillStyle='#88aacc';ctx.fillText(`Mountain seed: ${terrainSeed}`,400,350);
-      ctx.fillStyle='#bbb';ctx.font='17px system-ui';ctx.fillText('Click / tap for a new mountain',400,400);
     }
   }
   ctx.restore();
