@@ -1,4 +1,4 @@
-// FULL APE SKI ESCAPE v0.15 — Titus (skis, boots, muscle, chug)
+// FULL APE SKI ESCAPE v0.17 — Titus (skis, boots, muscle, head-tilt Busch chug)
 function drawTitus(tx,ty,leanAmt,bob,chugging,speed){
   const lx=leanAmt*7;
   ctx.save();
@@ -7,7 +7,6 @@ function drawTitus(tx,ty,leanAmt,bob,chugging,speed){
 
   ell(lx*0.3,70,38+Math.abs(leanAmt)*5,9,'rgba(0,0,0,0.3)');
 
-  // ===== DOWNHILL SKIS (long, tapered tips, not sewer lids) =====
   const skiLean=leanAmt*10;
   const lsx = -18 + skiLean;
   px(lsx-22, 62, 48, 5, '#1a1a22');
@@ -31,7 +30,6 @@ function drawTitus(tx,ty,leanAmt,bob,chugging,speed){
   px(rsx+2, 60, 12, 4, '#333');
   px(rsx+3, 61, 10, 2, '#555');
 
-  // ===== RED SKI BOOTS =====
   const legSpread=8+Math.abs(leanAmt)*3.5,legBend=speed>1.3?3:0;
   ell(-12-legSpread+lx*0.3, 36+legBend, 10, 14, '#121212');
   ell(-12-legSpread+lx*0.3, 36+legBend, 7, 11, '#222');
@@ -91,6 +89,7 @@ function drawTitus(tx,ty,leanAmt,bob,chugging,speed){
   ell(tx0+24, -6, 5, 4, '#181818');
 
   const hx=lx*0.7;
+  if(chugging){ctx.save();ctx.translate(hx*0.3,-8);ctx.rotate(-0.35);}
   ell(hx,-28,20,20,'#0e0e0e');
   ell(hx,-28,16,16,'#1c1c1c');
   ell(hx,-42,9,5,'#0a0a0a');
@@ -121,21 +120,41 @@ function drawTitus(tx,ty,leanAmt,bob,chugging,speed){
   px(hx-11+leanAmt,-28,4,3,'#3a7ec8');
   px(hx+4+leanAmt,-28,4,3,'#3a7ec8');
   px(hx-1,-27,3,3,'#0a0a0a');
+  if(chugging){ctx.restore();}
 
   if(chugging){
-    ell(-26,-18,9,16,'#121212');
-    ell(-26,-18,6,12,'#222');
-    ell(26,-18,9,16,'#121212');
-    ell(26,-18,6,12,'#222');
-    px(-10,-54,20,26,'#8aa0b8');
-    px(-8,-52,16,20,'#a8c0d8');
-    px(-7,-50,14,12,'#e8c020');
-    px(-6,-49,12,8,'#f0d040');
-    px(-7,-56,14,6,'#c8d8e8');
-    px(-6,-58,12,3,'#e0e8f0');
-    ell(-4,-62,4,4,'#fff8cc');
-    ell(3,-64,3,3,'#fff0aa');
-    ell(0,-66,3,3,'#ffe680');
+    ell(-22,-28,9,14,'#121212');
+    ell(-22,-28,6,11,'#222');
+    ell(18,-30,9,14,'#121212');
+    ell(18,-30,6,11,'#222');
+    ell(-12,-42,6,5,'#1a1a1a');
+    ell(10,-44,6,5,'#1a1a1a');
+    ctx.save();
+    ctx.translate(2,-48);
+    ctx.rotate(-0.85);
+    px(-7,-2,14,22,'#c8d4e0');
+    px(-6,-1,12,20,'#e8f0f8');
+    px(-5,0,10,18,'#f4f8fc');
+    px(-5,0,2,18,'#ffffff');
+    px(3,0,2,18,'#b8c8d8');
+    px(-6,-4,12,3,'#a8b8c8');
+    px(-5,-5,10,2,'#d0dce8');
+    ctx.fillStyle='#1e6bb8';
+    ctx.beginPath();ctx.moveTo(-4,12);ctx.lineTo(0,4);ctx.lineTo(4,12);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#2a88d0';
+    ctx.beginPath();ctx.moveTo(-3,12);ctx.lineTo(0,6);ctx.lineTo(3,12);ctx.closePath();ctx.fill();
+    px(-1,4,2,2,'#fff');
+    px(-5,13,10,3,'#1a5aa0');
+    px(-4,14,8,1,'#fff');
+    ctx.fillStyle='#e8c020';ctx.globalAlpha=0.85;
+    ctx.beginPath();ctx.moveTo(-2,-4);ctx.lineTo(2,-4);ctx.lineTo(4,-14);ctx.lineTo(-1,-12);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#f0d040';
+    ctx.beginPath();ctx.moveTo(-1,-4);ctx.lineTo(1,-4);ctx.lineTo(2,-12);ctx.lineTo(0,-11);ctx.closePath();ctx.fill();
+    ctx.globalAlpha=1;
+    ell(3,-15,2,2,'#fff8cc');
+    ell(5,-17,1.5,1.5,'#fff0aa');
+    ell(1,-16,1.5,1.5,'#ffe680');
+    ctx.restore();
   } else {
     const armSwing=leanAmt*4;
     ell(-30-armSwing,6,10,18,'#121212');
