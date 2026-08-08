@@ -1,4 +1,4 @@
-// FULL APE SKI ESCAPE v0.17 — world (pine trees, Busch Light beer, bananas, terrain)
+// FULL APE SKI ESCAPE v0.18 — world (realistic skiers, Busch Light, pine trees)
 function drawTree(x,y){
   px(x-5,y+16,10,28,'#3a2210');
   px(x-3,y+18,6,24,'#4a2e18');
@@ -19,7 +19,50 @@ function drawTree(x,y){
   px(x-6,y-6,12,3,'#d0e8f8');
   px(x-8,y+10,16,3,'#d0e8f8');
 }
-function drawSkier(x,y){px(x-10,y+2,20,28,'#1e2e6a');px(x-8,y+4,16,22,'#2e3e8a');px(x-7,y-12,14,14,'#c49a6c');px(x-5,y-10,10,8,'#d4aa7c');px(x-9,y-18,18,8,'#7a1828');px(x-16,y+28,32,5,'#0a0a0a');px(x-14,y+29,28,2,'#222')}
+function drawSkier(x,y){
+  ell(x,y+36,22,5,'rgba(0,0,0,0.2)');
+  px(x-22,y+32,20,4,'#1a1a22');
+  px(x-20,y+33,16,2,'#2a2a38');
+  px(x-26,y+31,6,3,'#222230');
+  px(x+2,y+32,20,4,'#1a1a22');
+  px(x+4,y+33,16,2,'#2a2a38');
+  px(x+20,y+31,6,3,'#222230');
+  ell(x-8,y+28,5,5,'#3a2010');
+  ell(x+8,y+28,5,5,'#3a2010');
+  ell(x-7,y+18,5,10,'#1a2a4a');
+  ell(x+7,y+18,5,10,'#1a2a4a');
+  ell(x,y+4,12,14,'#1e3a6a');
+  ell(x,y+4,9,11,'#2a4a8a');
+  px(x-3,y-2,6,8,'#3a5a9a');
+  ell(x-14,y+2,5,10,'#1e3a6a');
+  ell(x+14,y+2,5,10,'#1e3a6a');
+  ctx.strokeStyle='#222';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(x-14,y+8);ctx.lineTo(x-22,y+30);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x+14,y+8);ctx.lineTo(x+22,y+30);ctx.stroke();
+  px(x-25,y+28,6,3,'#333');
+  px(x+19,y+28,6,3,'#333');
+  ell(x,y-6,7,5,'#1a1a1a');
+  px(x-8,y-8,16,5,'#c02030');
+  px(x-7,y-7,14,3,'#e03040');
+  px(x+6,y-4,4,10,'#c02030');
+  px(x+7,y-2,2,8,'#e03040');
+  px(x-10,y-3,3,7,'#a01828');
+  ell(x,y-14,8,8,'#c49a6c');
+  ell(x,y-14,6,6,'#d4aa7c');
+  px(x-3,y-15,2,2,'#1a1a1a');
+  px(x+1,y-15,2,2,'#1a1a1a');
+  px(x-2,y-11,4,1,'#8a5a3a');
+  px(x-7,y-18,14,5,'#0a0a0a');
+  px(x-6,y-17,5,3,'#1a4060');
+  px(x+1,y-17,5,3,'#1a4060');
+  px(x-5,y-16,2,1,'#4a90c0');
+  px(x+2,y-16,2,1,'#4a90c0');
+  ell(x,y-22,8,5,'#2a6a3a');
+  px(x-7,y-22,14,4,'#2a6a3a');
+  px(x-6,y-24,12,3,'#3a8a4a');
+  ell(x,y-27,3,3,'#e8e8e8');
+  ell(x,y-27,2,2,'#fff');
+}
 function drawRock(x,y){px(x-16,y+2,32,26,'#2e2e2e');px(x-12,y+0,24,20,'#4a4a4a');px(x-8,y-2,14,12,'#5e5e5e');px(x-10,y-4,16,6,'#c8d8e8')}
 function drawTrash(x,y){
   ctx.fillStyle='#d8d4c8';ctx.beginPath();ctx.ellipse(x,y+10,14,12,0.2,0,Math.PI*2);ctx.fill();
