@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html><head><meta charset="UTF-8"><title>Full Ape Ski Escape</title>
 <style>body{margin:0;background:#071018;color:#ffcc33;font-family:system-ui;display:flex;align-items:center;justify-content:center;min-height:100vh}</style>
-</head><body><p id="st">Loading v0.16 yard sale…</p>
+</head><body><p id="st">Loading v0.16 yard sale...</p>
 <script>
 (async function(){
   const st=document.getElementById('st');
   try {
     const base='https://raw.githubusercontent.com/davey-fresh/full-ape-ski-escape/main/';
-    const n=5;
+    const n=10;
     let html='';
     for(let i=0;i<n;i++){
-      st.textContent='Loading '+(i+1)+'/'+n+'…';
+      st.textContent='Loading '+(i+1)+'/'+n+'...';
       const r=await fetch(base+'h'+i+'.txt?t='+Date.now());
       if(!r.ok) throw new Error('h'+i+' '+r.status);
       html+=await r.text();
