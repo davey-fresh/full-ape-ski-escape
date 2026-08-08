@@ -1,7 +1,19 @@
 <!DOCTYPE html>
-<html lang="en"><!-- see artifacts - loading via parts -->
-<head><meta charset="UTF-8"><title>Full Ape Ski Escape</title>
-<style>html,body{margin:0;background:#0a1628;height:100%}#wrap{display:flex;align-items:center;justify-content:center;height:100%}canvas{background:#fff;max-width:100vw;max-height:100vh}</style>
-</head><body><div id="wrap"><canvas id="game" width="800" height="600"></canvas></div>
-<script src="game-a.js"></script><script src="game-b.js"></script>
-</body></html>
+<html lang="en"><head><meta charset="UTF-8"><title>Full Ape Ski Escape</title>
+<style>body{margin:0;background:#0a1628;color:#ffcc33;font-family:system-ui;display:flex;align-items:center;justify-content:center;min-height:100vh}</style>
+</head><body><p id="s">Loading Full Ape Ski Escape…</p>
+<script>
+(async()=>{
+  try{
+    const p0=await(await fetch('gz0.txt')).text();
+    const p1=await(await fetch('gz1.txt')).text();
+    const bin=Uint8Array.from(atob(p0+p1),c=>c.charCodeAt(0));
+    const ds=new DecompressionStream('gzip');
+    const stream=new Blob([bin]).stream().pipeThrough(ds);
+    const html=await new Response(stream).text();
+    document.open();document.write(html);document.close();
+  }catch(e){
+    document.getElementById('s').textContent='Load failed: '+e;
+  }
+})();
+</script></body></html>

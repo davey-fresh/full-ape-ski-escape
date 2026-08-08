@@ -1,33 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Full Ape Ski Escape</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-  body{margin:0;background:#071018;color:#fff;font-family:system-ui,-apple-system,sans-serif;display:flex;flex-direction:column;align-items:center;padding:14px}
-  canvas{border:3px solid #1e2e48;border-radius:6px;background:#0a1525;box-shadow:0 14px 48px rgba(0,0,0,.65);image-rendering:pixelated}
-  .info{margin-top:12px;font-size:13px;opacity:.88;text-align:center;max-width:780px;line-height:1.45}
-  .title{font-size:25px;margin-bottom:3px;color:#ffcc33;letter-spacing:1px;text-shadow:0 2px 0 #996600}
-  .sub{margin:0 0 8px 0;opacity:.7;font-size:13px}
-</style>
-</head>
-<body>
-<h1 class="title">FULL APE SKI ESCAPE</h1>
-<p class="sub">Titus gets away for a bit... • Procedural mountain • v0.15</p>
-<canvas id="game" width="800" height="600"></canvas>
-<div class="info">
-  <strong>Controls:</strong> ← → / A D • <strong>Space W ↑</strong> JUMP (mash for more air) • Touch left/right to steer<br>
-  Beers = chug + boost • Ramps launch you • Moguls slow you • Trees/skiers = yard sale<br>
-  Every run generates a unique mountain profile & zones
-</div>
-<script src="https://cdn.jsdelivr.net/gh/davey-fresh/full-ape-ski-escape@main/core.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/davey-fresh/full-ape-ski-escape@main/draw-titus.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/davey-fresh/full-ape-ski-escape@main/draw-mama.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/davey-fresh/full-ape-ski-escape@main/draw-bro.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/davey-fresh/full-ape-ski-escape@main/draw-world.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/davey-fresh/full-ape-ski-escape@main/update.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/davey-fresh/full-ape-ski-escape@main/render.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/davey-fresh/full-ape-ski-escape@main/input.js"></script>
-</body>
-</html>
+<html lang="en"><head><meta charset="UTF-8"><title>Full Ape Ski Escape</title>
+<style>body{margin:0;background:#0a1628;color:#ffcc33;font-family:system-ui;display:flex;align-items:center;justify-content:center;min-height:100vh}</style>
+</head><body><p id="s">Loading Full Ape Ski Escape…</p>
+<script>
+(async()=>{
+  try{
+    const p0=await(await fetch('gz0.txt')).text();
+    const p1=await(await fetch('gz1.txt')).text();
+    const bin=Uint8Array.from(atob(p0+p1),c=>c.charCodeAt(0));
+    const ds=new DecompressionStream('gzip');
+    const stream=new Blob([bin]).stream().pipeThrough(ds);
+    const html=await new Response(stream).text();
+    document.open();document.write(html);document.close();
+  }catch(e){
+    document.getElementById('s').textContent='Load failed: '+e;
+  }
+})();
+</script></body></html>
