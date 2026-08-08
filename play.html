@@ -1,23 +1,20 @@
 <!DOCTYPE html>
 <html><head><meta charset="UTF-8"><title>Full Ape Ski Escape</title>
 <style>body{margin:0;background:#071018;color:#ffcc33;font-family:system-ui;display:flex;align-items:center;justify-content:center;min-height:100vh}</style>
-</head><body><p id="st">Loading v0.16…</p>
+</head><body><p id="st">Loading v0.16 yard sale…</p>
 <script>
 (async function(){
   const st=document.getElementById('st');
   try {
     const base='https://raw.githubusercontent.com/davey-fresh/full-ape-ski-escape/main/';
-    const n=6;
-    let b64='';
+    const n=5;
+    let html='';
     for(let i=0;i<n;i++){
-      st.textContent='Loading chunk '+(i+1)+'/'+n+'…';
-      const r=await fetch(base+'c'+i+'.txt?t='+Date.now());
-      if(!r.ok) throw new Error('chunk '+i+' '+r.status);
-      b64+=(await r.text()).replace(/\s+/g,'');
+      st.textContent='Loading '+(i+1)+'/'+n+'…';
+      const r=await fetch(base+'h'+i+'.txt?t='+Date.now());
+      if(!r.ok) throw new Error('h'+i+' '+r.status);
+      html+=await r.text();
     }
-    const bin=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
-    const stream=new Blob([bin]).stream().pipeThrough(new DecompressionStream('gzip'));
-    const html=await new Response(stream).text();
     document.open();document.write(html);document.close();
   } catch(e) { st.textContent='Load failed: '+e; console.error(e); }
 })();
