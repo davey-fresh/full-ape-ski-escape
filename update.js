@@ -1,6 +1,19 @@
-// FULL APE SKI ESCAPE v0.15 — update
+// FULL APE SKI ESCAPE v0.16 — update
 function update(delta){
   if(gameState==='celebrating'){celebTime+=delta;if(Math.floor(celebTime/280)!==Math.floor((celebTime-delta)/280))sfxPound();return}
+  if(gameState==='lose'){
+    loseTime+=delta;
+    for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.x+=p.vx;p.y+=p.vy;p.life-=delta;p.vy+=0.05;if(p.life<=0)particles.splice(i,1)}
+    for(let i=wipeoutDebris.length-1;i>=0;i--){
+      const d=wipeoutDebris[i];
+      d.x+=d.vx;d.y+=d.vy;d.vy+=0.18;d.rot+=d.rotV;d.life-=delta;
+      d.vx*=0.995;
+      if(d.y>520){d.y=520;d.vy*=-0.25;d.vx*=0.7;d.rotV*=0.6}
+      if(d.life<=0)wipeoutDebris.splice(i,1);
+    }
+    if(shake>0)shake*=0.9;if(shake<0.3)shake=0;
+    return;
+  }
   if(gameState!=='playing')return;
   const now=Date.now(),elapsed=now-gameStartTime;
   if(jumpCooldown>0)jumpCooldown-=delta;
@@ -36,7 +49,7 @@ function update(delta){
         if(obs.type==='ramp'){isAirborne=true;jumpVy=-9.5;airJumpsLeft=1;currentSpeedMod=Math.max(currentSpeedMod,1.65);sfxRamp();triggerShake(6);createParticles(obs.x,obs.y,'#d0e8ff',14,3.5);jumpsMade++;obstacles.splice(i,1);continue}
         if(obs.type==='mogul'){mogulSlowLeft=900;sfxMogul();triggerShake(4);createParticles(obs.x,obs.y,'#c0d8f0',7,2);obstacles.splice(i,1);continue}
         if(['puke','rock','trash','banana'].includes(obs.type)){createParticles(obs.x,obs.y,obs.type==='puke'?'#8aba3a':(obs.type==='banana'?'#e8c020':'#777'),9);obstacles.splice(i,1);continue}
-        else{gameState='lose';sfxWipe();triggerShake(18);createParticles(titusX,titusY,'#fff',32,5);createParticles(titusX,titusY,'#ffaa66',12,4);return}
+        else{triggerYardSale(titusX,titusY);return}
       }
     }
     if(obs.y<-90)obstacles.splice(i,1);
@@ -62,7 +75,7 @@ function update(delta){
     orangutanY+=dy*0.048*boostSlow;if(orangutanY>titusY+20)orangutanY-=6;
     const dist=Math.hypot(orangutanX-titusX,orangutanY-titusY);
     if(dist<115&&now-lastCloseSfx>900){closeCalls++;lastCloseSfx=now;sfxClose();triggerShake(3)}
-    if(dist<62){gameState='lose';sfxWipe();triggerShake(20);createParticles(titusX,titusY,'#ff6622',28,5);return}
+    if(dist<62){triggerYardSale(titusX,titusY);createParticles(titusX,titusY,'#ff6622',16,4);return}
   }
   for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.x+=p.vx;p.y+=p.vy;p.life-=delta;p.vy+=0.04;if(p.life<=0)particles.splice(i,1)}
   if(shake>0)shake*=0.88;if(shake<0.4)shake=0;
