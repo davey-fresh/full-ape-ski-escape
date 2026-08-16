@@ -1,1 +1,20 @@
-<!DOCTYPE html><html><head><meta charset=UTF-8><title>loading</title></head><body>Use full file - placeholder</body></html>
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Full Ape Ski Escape</title>
+<style>body{margin:0;background:#0a1628;color:#ffcc33;font-family:system-ui;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:20px}</style>
+</head><body><p id="s">Loading Full Ape Ski Escape…</p>
+<script>
+(async()=>{
+  try{
+    const p0=await(await fetch('gz0.txt')).text();
+    const p1=await(await fetch('gz1.txt')).text();
+    const bin=Uint8Array.from(atob(p0+p1),c=>c.charCodeAt(0));
+    const ds=new DecompressionStream('gzip');
+    const stream=new Blob([bin]).stream().pipeThrough(ds);
+    const html=await new Response(stream).text();
+    document.open();document.write(html);document.close();
+  }catch(e){
+    document.getElementById('s').innerHTML='Load failed. Try <a href="play.html" style="color:#ffcc33">play.html</a><br><small>'+e+'</small>';
+  }
+})();
+</script></body></html>
